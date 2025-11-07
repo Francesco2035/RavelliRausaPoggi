@@ -42,11 +42,11 @@ In this section, there are defined the goals that the system has to achieve:
 
     \uline{\textbf{Consultation and Visualization}}
     
-        \textbf{[G\cg]} Users should be able to consult information about available bike paths. %ma anche quelli non registrati?
+        \textbf{[G\cg]} Both registered and unregistered users should be able to consult information about available bike paths.
 
-        \textbf{[G\cg]}  Users should be able to visualize on a map the bike paths between a specified origin and destination.
+        \textbf{[G\cg]}  Users should be able to visualize on a map the bike paths between a specified origin and destination. %forse non è un goal
 
-        \textbf{[G\cg]}  The system should calculate and display a score for each path based on its status and effectiveness.
+        \textbf{[G\cg]}  The system should calculate and display a score for each path based on its status and effectiveness. %forse non è un goal
 
     \uline{\textbf{Data Aggregation}}
 
@@ -54,7 +54,7 @@ In this section, there are defined the goals that the system has to achieve:
 
     \uline{\textbf{Data Enrichment}}
 
-        \textbf{[G\cg]}  The system should enrich trip data with meteorological information when available.
+        \textbf{[G\cg]}  The system should enrich trip data with meteorological information when available. %forse non è un goal
 
 
 \section{Scope}
@@ -72,9 +72,97 @@ BBP's core functionalities include:
 \end{itemize}
 
 
+\subsection{World Phenomena}
+\label{subsec:world_phenomena}
+\newcounter{wp}
+\setcounter{wp}{1}
+\newcommand{\cwp}{\thewp\stepcounter{wp}}
 
-    
+        \textbf{[WP\cwp]} Cyclists travel on roads and bike paths by bicycle.
 
+        \textbf{[WP\cwp]} The conditions of roads and bike paths change over time .
 
-    
+        \textbf{[WP\cwp]} Cyclists' mobile devices detect movement, GPS position, and accelerations during trips.
+
+        \textbf{[WP\cwp]} Cyclists encounter physical obstacles or hazards along bike paths.
+
+        \textbf{[WP\cwp]}  Different cyclists use the same bike path at different times, each experiencing its conditions independently.
+
+        \textbf{[WP\cwp]} Cyclists observe and evaluate the status of paths they travel. %questa non saprei
         
+        \textbf{[WP\cwp]} External meteorological services collect and provide data on weather conditions, temperature, and wind speed.
+
+
+\subsection{Shared Phenomena}
+\label{subsec:shared_phenomena}
+\newcounter{sp}
+\setcounter{sp}{1}
+\newcommand{\csp} {\thesp\stepcounter{sp}}
+
+\uline{\textbf{World Controlled}}
+
+        \textbf{[SP\csp]} Users sign up to the platform providing their credentials.
+
+        \textbf{[SP\csp]} Users log into the platform.
+
+        \textbf{[SP\csp]} Registered users manually start and stop the recording of a trip.
+
+        \textbf{[SP\csp]} Registered users allow BBP to acquire data from mobile device sensors during trips.
+
+        \textbf{[SP\csp]} Registered users manually insert information about bike paths.
+
+        \textbf{[SP\csp]} Registered users confirm or correct information automatically acquired by BBP.
+
+        \textbf{[SP\csp]} Registered users make the inserted path information publishable.
+
+        \textbf{[SP\csp]} Users specify an origin and a destination to search for bike paths.
+
+        \textbf{[SP\csp]} Users consult detailed information about displayed paths.
+
+        \textbf{[SP\csp]} Users (including non-registered ones) navigate the map of available paths.
+        
+
+\uline{\textbf{Machine Controlled}}
+
+        \textbf{[SP\csp]} The system records GPS data from the user's mobile device during a trip.
+
+        \textbf{[SP\csp]} The system records data from the mobile device's accelerometer and gyroscope during a trip.
+
+        \textbf{[SP\csp]} The system detects that the user is biking based on detected speed.
+
+        \textbf{[SP\csp]} The system reconstructs the path followed by the user from acquired GPS data.
+        
+        \textbf{[SP\csp]} The system identifies potential potholes or problems by analyzing accelerometer and gyroscope data.
+        
+        \textbf{[SP\csp]} The system presents automatically acquired information to the user for confirmation/correction.
+
+        \textbf{[SP\csp]} The system stores trips recorded by users with their related statistics.
+
+        \textbf{[SP\csp]} The system calculates trip statistics (total distance, average speed, performance metrics).
+
+        \textbf{[SP\csp]} The system requests meteorological information from the external service for a specific trip.
+
+        \textbf{[SP\csp]} The system enriches trip data with received meteorological information.      
+
+        \textbf{[SP\csp]} The system stores path information inserted by users.
+
+        \textbf{[SP\csp]} The system aggregates information coming from multiple users about the same path.
+
+        \textbf{[SP\csp]} The system calculates a path's score based on status and effectiveness.
+
+        \textbf{[SP\csp]} The system identifies bike paths between specified origin and destination.
+
+        \textbf{[SP\csp]} The system visualizes identified paths on a map ordered by score.
+
+        \textbf{[SP\csp]} The system shows the user the statistics of their stored trips.
+
+        \textbf{[SP\csp]} The system applies prevalence logic to determine the aggregated status of a path.
+
+        \textbf{[SP\csp]} The system sends notifications to users about relevant changes. %questa è in più direi, quindi se la "implementiamo"
+
+
+    
+
+
+    
+         
