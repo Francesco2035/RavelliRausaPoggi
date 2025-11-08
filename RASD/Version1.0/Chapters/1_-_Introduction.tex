@@ -38,7 +38,7 @@ In this section, there are defined the goals that the system has to achieve:
 
         \textbf{[G\cg]}  Users should be able to confirm or correct automatically acquired information before publication.
 
-        \textbf{[G\cg]}  Users should be able to make the inserted path information publishable.
+        \textbf{[G\cg]}  Users should be able to make the inserted path information publishable. % secondo me bisognerebbe cambiare wording
 
     \uline{\textbf{Consultation and Visualization}}
     
@@ -48,19 +48,21 @@ In this section, there are defined the goals that the system has to achieve:
 
         \textbf{[G\cg]}  The system should calculate and display a score for each path based on its status and effectiveness. %forse non è un goal
 
+        %aggiungerei un goal che dice che gli user dovrebbero avere la possibilità di scegliere  un percorso da A verso B tra quelli disponibili 
+
     \uline{\textbf{Data Aggregation}}
 
-        \textbf{[G\cg]}  The system should aggregate information coming from multiple users about the same paths, considering data freshness and number of confirmations.
+        \textbf{[G\cg]}  The system should aggregate information coming from multiple users about the same paths, considering data freshness and number of confirmations. % al massimo qua si può mettere come goal il fatto che calcola il best path pero potrebbe comunque essere un req
 
     \uline{\textbf{Data Enrichment}}
 
-        \textbf{[G\cg]}  The system should enrich trip data with meteorological information when available. %forse non è un goal
+        \textbf{[G\cg]}  The system should enrich trip data with meteorological information when available. %forse non è un goal, si può aggregare con il fatto che prenda automaticamente i dati
 
 
 \section{Scope}
 \label{subsec:scope}%
 
-Best Bike Paths (BBP) is a platform that supports cyclists in creating and consulting a collaborative inventory of bike paths. The platform manages the path status through standardized categories (optimal, medium, sufficient, requires maintenance) and tracks the presence of relevant obstacles such as potholes or other issues that may compromise safety.
+Best Bike Paths (BBP) is a platform that supports cyclists in creating and consulting a collaborative inventory of bike paths. The platform manages the path status through standardized categories (optimal, medium, sufficient, requires maintenance) and tracks the presence of relevant obstacles such as potholes or other issues that may compromise safety. % bisognerebbe considerare secondo me che un percorso precedentemenyte esistente potrebbe essere bloccato o non esistere più
 
 BBP's core functionalities include:
 \begin{itemize}
@@ -80,7 +82,7 @@ BBP's core functionalities include:
 
         \textbf{[WP\cwp]} Cyclists travel on roads and bike paths by bicycle.
 
-        \textbf{[WP\cwp]} The conditions of roads and bike paths change over time .
+        \textbf{[WP\cwp]} The conditions of roads and bike paths change over time.
 
         \textbf{[WP\cwp]} Cyclists' mobile devices detect movement, GPS position, and accelerations during trips.
 
@@ -88,9 +90,11 @@ BBP's core functionalities include:
 
         \textbf{[WP\cwp]}  Different cyclists use the same bike path at different times, each experiencing its conditions independently.
 
-        \textbf{[WP\cwp]} Cyclists observe and evaluate the status of paths they travel. %questa non saprei
+        \textbf{[WP\cwp]} Cyclists observe and evaluate the status of paths they travel. %questa non saprei nah va bene 
         
-        \textbf{[WP\cwp]} External meteorological services collect and provide data on weather conditions, temperature, and wind speed.
+        \textbf{[WP\cwp]} External meteorological services collect and provide data on weather conditions, temperature, and wind speed. 
+
+        %manca un qualcosa che ci dice che i ciclisti desiderino andare da A verso B?
 
 
 \subsection{Shared Phenomena}
@@ -138,7 +142,7 @@ BBP's core functionalities include:
 
         \textbf{[SP\csp]} The system stores trips recorded by users with their related statistics.
 
-        \textbf{[SP\csp]} The system calculates trip statistics (total distance, average speed, performance metrics).
+        \textbf{[SP\csp]} The system calculates trip statistics (total distance, average speed, performance metrics). %siamo sicuri sia uno sp?
 
         \textbf{[SP\csp]} The system requests meteorological information from the external service for a specific trip.
 
