@@ -38,15 +38,14 @@ In this section, there are defined the goals that the system has to achieve:
 
         \textbf{[G\cg]}  Users should be able to confirm or correct automatically acquired information before publication.
 
-        \textbf{[G\cg]}  Users should be able to make the inserted path information publishable. % secondo me bisognerebbe cambiare wording
+        \textbf{[G\cg]}  Users should be able to publish paths' information. % secondo me bisognerebbe cambiare wording
 
-    \uline{\textbf{Consultation and Visualization}}
+    \uline{\textbf{Consultation}}
     
         \textbf{[G\cg]} Both registered and unregistered users should be able to consult information about available bike paths.
 
-        \textbf{[G\cg]}  Users should be able to visualize on a map the bike paths between a specified origin and destination. %forse non è un goal
-
-        \textbf{[G\cg]}  The system should calculate and display a score for each path based on its status and effectiveness. %forse non è un goal
+        \textbf{[G\cg]} Users should be able to choose the most suitable bike path to their destination according to their preferences.
+%visualizzare sulla mappa è più un requirement
 
         %aggiungerei un goal che dice che gli user dovrebbero avere la possibilità di scegliere  un percorso da A verso B tra quelli disponibili 
 
@@ -54,9 +53,9 @@ In this section, there are defined the goals that the system has to achieve:
 
         \textbf{[G\cg]}  The system should aggregate information coming from multiple users about the same paths, considering data freshness and number of confirmations. % al massimo qua si può mettere come goal il fatto che calcola il best path pero potrebbe comunque essere un req
 
-    \uline{\textbf{Data Enrichment}}
+    %\uline{\textbf{Data Enrichment}}
 
-        \textbf{[G\cg]}  The system should enrich trip data with meteorological information when available. %forse non è un goal, si può aggregare con il fatto che prenda automaticamente i dati
+        %\textbf{[G\cg]}  The system should enrich trip data with meteorological information when available. %forse non è un goal, si può aggregare con il fatto che prenda automaticamente i dati
 
 
 \section{Scope}
@@ -64,13 +63,13 @@ In this section, there are defined the goals that the system has to achieve:
 
 Best Bike Paths (BBP) is a platform that supports cyclists in creating and consulting a collaborative inventory of bike paths. The platform manages the path status through standardized categories (optimal, medium, sufficient, requires maintenance) and tracks the presence of relevant obstacles such as potholes or other issues that may compromise safety. % bisognerebbe considerare secondo me che un percorso precedentemenyte esistente potrebbe essere bloccato o non esistere più
 
-BBP's core functionalities include:
+BBP provides the following core functionalities:
 \begin{itemize}
-    \item Recording and storing personal trips with performance statistics.
-    \item Manual and automated insertion of bike path information.
-    \item Visualization of bike paths on a map between user-specified origin and destination.
-    \item Aggregation and fusion of path data collected from multiple users, considering temporal proximity and consensus.
-    \item Enrichment of trip data with meteorological information from external services when available.
+    \item Support cyclists in recording and storing their trips with performance statistics.
+    \item Enable manual and automatic insertion of bike path information collected from mobile devices.
+    \item Allow users (registered and unregistered) to explore bike paths on a map between chosen origin and destination points.
+    \item Aggregate and reconcile path data from multiple users, considering temporal proximity and consensus.
+    \item Enrich trip data with meteorological information obtained from external services.
 \end{itemize}
 
 
@@ -84,17 +83,13 @@ BBP's core functionalities include:
 
         \textbf{[WP\cwp]} The conditions of roads and bike paths change over time.
 
-        \textbf{[WP\cwp]} Cyclists' mobile devices detect movement, GPS position, and accelerations during trips.
-
         \textbf{[WP\cwp]} Cyclists encounter physical obstacles or hazards along bike paths.
 
         \textbf{[WP\cwp]}  Different cyclists use the same bike path at different times, each experiencing its conditions independently.
 
-        \textbf{[WP\cwp]} Cyclists observe and evaluate the status of paths they travel. %questa non saprei nah va bene 
+        \textbf{[WP\cwp]} Cyclists observe and formulate opinions on the status of paths they travel. %questa non saprei nah va bene 
         
-        \textbf{[WP\cwp]} External meteorological services collect and provide data on weather conditions, temperature, and wind speed. 
-
-        %manca un qualcosa che ci dice che i ciclisti desiderino andare da A verso B?
+        \textbf{[WP\cwp]} External meteorological services collect data on weather conditions, temperature, and wind speed. 
 
 
 \subsection{Shared Phenomena}
@@ -111,61 +106,76 @@ BBP's core functionalities include:
 
         \textbf{[SP\csp]} Registered users manually start and stop the recording of a trip.
 
-        \textbf{[SP\csp]} Registered users allow BBP to acquire data from mobile device sensors during trips.
+        \textbf{[SP\csp]} Users grant permission for BBP to access sensor data during trips.
 
         \textbf{[SP\csp]} Registered users manually insert information about bike paths.
 
         \textbf{[SP\csp]} Registered users confirm or correct information automatically acquired by BBP.
 
-        \textbf{[SP\csp]} Registered users make the inserted path information publishable.
+        \textbf{[SP\csp]} Registered authorize the publication of their submitted path information.
 
         \textbf{[SP\csp]} Users specify an origin and a destination to search for bike paths.
 
-        \textbf{[SP\csp]} Users consult detailed information about displayed paths.
+        \textbf{[SP\csp]} Users request detailed path information.
 
         \textbf{[SP\csp]} Users (including non-registered ones) navigate the map of available paths.
+
+        \textbf{[SP\csp]} Cyclists' mobile devices detect movement, GPS position, and accelerations during trips.
         
 
 \uline{\textbf{Machine Controlled}}
 
-        \textbf{[SP\csp]} The system records GPS data from the user's mobile device during a trip.
+%golden rule: tutti con output tangibile, showd, forward, ...
 
-        \textbf{[SP\csp]} The system records data from the mobile device's accelerometer and gyroscope during a trip.
+        %\textbf{[SP\csp]} The system records GPS data from the user's mobile device during a trip.
 
-        \textbf{[SP\csp]} The system detects that the user is biking based on detected speed.
+        %\textbf{[SP\csp]} The system records data from the mobile device's accelerometer and gyroscope during a trip.
 
-        \textbf{[SP\csp]} The system reconstructs the path followed by the user from acquired GPS data.
+        %\textbf{[SP\csp]} The system detects that the user is biking based on detected speed.
+
+        \textbf{[SP\csp]} The system reconstructs the path followed by the user from acquired GPS data and shows it in the user's trip history.
         
-        \textbf{[SP\csp]} The system identifies potential potholes or problems by analyzing accelerometer and gyroscope data.
+        %\textbf{[SP\csp]} The system identifies potential potholes or problems by analyzing accelerometer and gyroscope data.
         
         \textbf{[SP\csp]} The system presents automatically acquired information to the user for confirmation/correction.
 
-        \textbf{[SP\csp]} The system stores trips recorded by users with their related statistics.
+        %\textbf{[SP\csp]} The system stores trips recorded by users with their related statistics.
 
-        \textbf{[SP\csp]} The system calculates trip statistics (total distance, average speed, performance metrics). %siamo sicuri sia uno sp?
+        %\textbf{[SP\csp]} The system calculates trip statistics (total distance, average speed, performance metrics). %siamo sicuri sia uno sp?
 
         \textbf{[SP\csp]} The system requests meteorological information from the external service for a specific trip.
 
-        \textbf{[SP\csp]} The system enriches trip data with received meteorological information.      
+        %\textbf{[SP\csp]} The system enriches trip data with received meteorological information.      
 
-        \textbf{[SP\csp]} The system stores path information inserted by users.
+        %\textbf{[SP\csp]} The system stores path information inserted by users.
 
-        \textbf{[SP\csp]} The system aggregates information coming from multiple users about the same path.
+        %\textbf{[SP\csp]} The system aggregates information coming from multiple users about the same path.
 
-        \textbf{[SP\csp]} The system calculates a path's score based on status and effectiveness.
+        %\textbf{[SP\csp]} The system calculates a path's score based on status and effectiveness.
 
-        \textbf{[SP\csp]} The system identifies bike paths between specified origin and destination.
+        %\textbf{[SP\csp]} The system identifies bike paths between specified origin and destination.
 
-        \textbf{[SP\csp]} The system visualizes identified paths on a map ordered by score.
+        \textbf{[SP\csp]} The system shows identified paths on a map ordered by score.
 
         \textbf{[SP\csp]} The system shows the user the statistics of their stored trips.
 
-        \textbf{[SP\csp]} The system applies prevalence logic to determine the aggregated status of a path.
+        %\textbf{[SP\csp]} The system applies prevalence logic to determine the aggregated status of a path.
 
         \textbf{[SP\csp]} The system sends notifications to users about relevant changes. %questa è in più direi, quindi se la "implementiamo"
 
+        \textbf{[SP\csp]} The system displays the requested information.
 
-    
+
+
+
+    \subsection{Definitions} \begin{description} \item[BBP (Best Bike Paths)] The collaborative platform, subject of this document, designed to collect, analyze, and share data about cycling routes. \item[Registered User] A user who has created a profile on the platform and can record trips, insert data, and manage their profile. \item[Unregistered User] A user who can only consult information and view maps of available bike paths. \item[Path Status] A standardized rating of a path's condition (e.g., optimal, medium, sufficient, requires maintenance). \item[Trip] The recording of a single bicycle journey, which includes GPS data, sensor readings, and statistics. \end{description}
+\subsection{Acronyms} \begin{description} \item[BBP] Best Bike Paths \item[G] Goal \item[WP] World Phenomena \item[SP] Shared Phenomena\item[GPS] Global Positioning System \item[API] Application Programming Interface \item[DB] Data Base \end{description}
+\subsection{Abbreviations} \begin{description} \item[Id] Identifier \end{description}
+
+
+\section{Revision history} \begin{itemize} \item November 8, 2025: version 1.0 (First release) \end{itemize}
+
+\section{Document structure} \end{enumerate}
 
 
     
