@@ -81,7 +81,60 @@ The \textit{Map} entity models the application’s visualization layer. It displ
 
 Optional multimedia and localization enrichment is supported by the \textit{Photo} and \textit{Position} entities. Positions specify geographic coordinates for a point along a path, while photos can visually document the situation encountered. By associating these elements with contributions or information items, the system ensures precise localization and improves the transparency and reliability of the data shared across the platform.
 
+
+\subsection{State Diagrams}
+\label{subsec:state_diagrams}
+\subsubsection{User Registration and Account Management}
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=1\linewidth]{RASD/Version1.0/images/user_state_diagram.png}
+        \caption{User Registration and Account Management.}
+        \label{fig:User_Registration_and_Account_Management_state_diagram}%
+    \end{center}
+\end{figure}
+
+
+This state diagram models the lifecycle of a user account within the application, from the initial unregistered state to registration, authentication, and eventual termination. The process begins with the user in the ‘Unregistered’ state. Upon initiating sign-up, the account transitions to ‘Registering’; if details are submitted correctly, the user reaches ‘Registered’. Failed registration attempts are captured in ‘RegistrationFailed’ with a loop for retrying or returning to the unregistered state. Similarly, the sign-in phase transitions through ‘Authenticating’, allowing for authentication retries or failures before advancing to the ‘Authenticated’ state when credentials are correct. At any point after registration, the user can choose to delete their account, moving directly to the terminal state. This lifecycle ensures secure onboarding and persistent access control, while supporting error handling and explicit account dismissal.
+
+
+
+\subsubsection{Detection (Automatic Trip)}
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=1\linewidth]{RASD/Version1.0/images/detection_state_diagram.png}
+        \caption{Detection (Automatic Trip).}
+        \label{fig:detection_state_diagram}%
+    \end{center}
+\end{figure}
+
+The detection state diagram represents the lifecycle of an automatically generated detection based on sensor data collected during a cycling trip. When a trip is completed and relevant patterns are recognized in the sensor logs, a new detection is created and enters the ‘PendingConfirmation’ state. The application solicits user feedback: if the user confirms the obstacle, the detection transitions to ‘Confirmed’; otherwise, it proceeds to ‘Rejected’. Both confirmed and rejected detections are then archived, ending the detection’s lifecycle. This mechanism integrates automatic sensing with crowdsourced validation, ensuring only verified obstacles affect route recommendations and path information.
+
+
+\subsubsection{Manual Trip}
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=1\linewidth]{RASD/Version1.0/images/manual_trip_state_diagram.png}
+        \caption{Manual Trip.}
+        \label{fig:manual_trip_state_diagram}%
+    \end{center}
+\end{figure}
+
+This diagram illustrates the flow for manually tracked trips initiated by a registered user. The cycle begins with the ‘Ready’ state, where the user can start recording. When recording, the user can interrupt (pausing and resuming) or stop the trip at any time. Upon stopping, the trip enters the ‘Editing’ phase: the user can add comments, photos, and additional contributions. Once editing is complete, the user decides whether to publish the contribution (moving to ‘Published’ and storing the trip publicly), save privately (moving to ‘TripSaved’ for personal history), or discard the data (ending the process without saving). The diagram explicitly covers discarding at every phase—ensuring user control and privacy. The workflow supports rich trip enrichment and flexible publishing, forming the basis for contribution creation.
+
+
+\subsubsection{Path}
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=1\linewidth]{RASD/Version1.0/images/path_state_diagram.png}
+        \caption{Path.}
+        \label{fig:path_state_diagram}%
+    \end{center}
+\end{figure}
+
+The path state diagram captures the lifecycle of a route segment within the system. A path is created when a user submits a contribution referencing a previously unregistered route, leading to the ‘Active’ state. As further contributions are made—modifying path information, adding obstacles or attributes—the path remains or returns to ‘Active’. When a delete action (often due to an explicit contribution or moderation) is received, the path transitions to ‘Inactive’, effectively removing it from user access and marking the end of its lifecycle. The diagram models the dynamic evolution and possible removal of infrastructure elements based on crowdsourced contributions and administrative actions.
+
 \section{Product Functions}
+\label{sec:product_functions}
 The BBP platform is designed to support cyclists in the collection, exploration, and sharing of information about bike paths. It provides functionalities that cover every stage of the cycling experience, from trip recording and path contribution to map consultation and route recommendation. By integrating automated sensor detection, user-generated data, and aggregation mechanisms, the platform ensures reliable, up-to-date information for all users, offering a seamless and collaborative riding experience.
 \begin{itemize}
     \item \textbf{Sign Up and Profile Management}\\
