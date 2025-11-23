@@ -81,3 +81,161 @@ The \textit{Map} entity models the application’s visualization layer. It displ
 
 Optional multimedia and localization enrichment is supported by the \textit{Photo} and \textit{Position} entities. Positions specify geographic coordinates for a point along a path, while photos can visually document the situation encountered. By associating these elements with contributions or information items, the system ensures precise localization and improves the transparency and reliability of the data shared across the platform.
 
+\section{Product Functions}
+The BBP platform is designed to support cyclists in the collection, exploration, and sharing of information about bike paths. It provides functionalities that cover every stage of the cycling experience, from trip recording and path contribution to map consultation and route recommendation. By integrating automated sensor detection, user-generated data, and aggregation mechanisms, the platform ensures reliable, up-to-date information for all users, offering a seamless and collaborative riding experience.
+\begin{itemize}
+    \item \textbf{Sign Up and Profile Management}\\
+    Users create an account on the platform to access advanced functionalities, such as trip recording and contribution publishing. During registration, they provide personal information and configure basic preferences (e.g., cycling style or comfort priorities). Registered users can later update their profile, manage privacy settings, and modify their preferences, which are used by the recommendation system to tailor route suggestions.
+
+   \item \textbf{Trip Recording and Storage}\\
+Registered users can record their bike trips either manually or through the automatic tracking option. 
+During a ride, the system collects essential trip data such as GPS position, speed, and timestamps. 
+Once the trip ends, the user can save it to their personal history, where BBP generates statistical summaries including total distance, average speed, travel time, and performance indicators. 
+These statistics allow cyclists to review past activity and monitor their progress over time.
+% Possibile revisione: poco atomica? parere FGR
+
+    \item \textbf{Manual Insertion of Path Information}\\
+    Users can manually report details about bike paths that are missing or incomplete in the shared database. This includes route description, path condition (e.g., Optimal, Medium, Requires Maintenance), and obstacles encountered. The system stores submitted information as a contribution that can later be published to the public map.
+
+    \item \textbf{Automatic Path Detection and Confirmation}\\
+    BBP supports automatic acquisition of path information through mobile sensors.
+    When activated, the system uses GPS, accelerometer, and gyroscope data to reconstruct the path followed and detect potential obstacles such as potholes or irregularities. Detected information is presented to the user for review: registered users must confirm or correct each detection before it becomes a valid contribution.
+
+    \item \textbf{Publication of Path Information}\\
+    Registered users can publish both manually inserted data and confirmed automatic contributions.
+    Publishing makes the information visible to all platform users and allows it to affect the global classification, condition score, and visualization of the corresponding bike path. Users may publish contributions immediately after a trip or at a later moment by reviewing stored entries.
+
+    \item \textbf{Bike Path Consultation and Map Navigation}\\
+    BBP enables both registered and unregistered users to browse a map of available cycling paths.
+    Users can search for routes between a chosen origin and destination. The system displays viable paths, enriched with condition evaluations, obstacles, and contributions from the community. Maps remain accessible even without an account, though personalized features are limited to registered users.
+
+    \item \textbf{Personalized Route Recommendation}\\
+    The platform automatically generates a list of suitable paths between two points by analyzing path conditions, traffic comfort, safety indicators, and user preferences (for registered users only).
+    The recommendation engine ranks each path by score, which considers contributions, surface smoothness, obstacle frequency, and how effectively the path leads to the destination. Registered users receive more personalized suggestions based on their saved profile settings.
+
+    \item \textbf{Data Aggregation and Reconciliation}\\
+    BBP aggregates contributions from multiple users who traveled the same path.
+    The system applies a prevalence strategy, combining the number of confirmations, recency of reports, and consistency of information to derive the most reliable status for each path segment. This aggregated evaluation determines the official condition displayed on the map.
+
+    \item \textbf{Weather Data Enrichment}\\
+    For each recorded trip, BBP can request meteorological data from external services, such as weather conditions, temperature, and wind intensity. This information is integrated into the trip summary, enabling cyclists to better understand the context of their performance or encountered difficulties.
+
+    %Dovremmo aggiungere altre integrazioni di dati? Tipo protezione civile ecc, per segnalare incidenti, frane, disastri naturali???
+
+    % Chiedere al prof se possiamo avere libertà di sviluppo di features?
+    %\item \textbf{Notifications and Updates}\\
+    %The system notifies users about relevant changes in their frequently used or favorite paths, such as condition updates, new obstacles, or recent contributions from other cyclists. Notifications help users stay informed about the current state of the infrastructure and plan safer routes.
+\end{itemize}
+
+
+\section{Requirements}
+\subsubsection*{User Authentication and Profile Management}
+\item \textbf{[R1]} Upon request, the system shall allow a new User to sign up to the platform, as long as all required personal information is provided and no existing account is associated with the submitted email.
+\item \textbf{[R2]}Upon request, the system shall allow the User to log into the platform, as long as authentication succeeds, and access to his personal profile.
+\item \textbf{[R3]}Upon request, the system shall allow a Registered User to update their profile information, as long as all necessary data is provided.
+\item \textbf{[R4]}Whenever a Registered User updates their preferences, the system shall store these changes and apply them to future personalized route recommendations.
+\subsubsection*{Trip Recording and Statistics}
+\item \textbf{[R5]}Upon request, the system shall allow a Registered User to manually start recording a trip, as long as GPS permissions are granted.
+\item \textbf{[R6]}Upon request, the system shall allow a Registered User to manually stop a trip that was previously started.
+\item \textbf{[R7]}Whenever a trip is recorded, the system shall store its GPS track, timestamps, and speed data into the User’s trip history.
+\item \textbf{[R8]}Whenever a trip is stored, the system shall compute statistics such as total distance, average speed, travel time, and other performance metrics.
+\item \textbf{[R9]}Upon request, the system shall show a Registered User the statistics of any of their stored trips.
+\subsubsection*{Manual Path Information Insertion}
+
+\textbf{[R10]} Upon request, the system shall allow a Registered User to manually insert information about a bike path, including street names, path status, and obstacles.
+
+\textbf{[R11]} Whenever manual path information is submitted, the system shall store it as a contribution associated with the selected path. %chiedi FGR
+
+\textbf{[R12]} Upon request, the system shall allow the Registered User to edit or update any of their pending manual contributions.
+
+% ----------------------------------------------------------
+
+\subsubsection*{Automatic Path Detection and User Confirmation}
+
+\textbf{[R13]} Upon request, the system shall allow a Registered User to activate the automatic path detection mode, as long as the User grants access to GPS, accelerometer, and gyroscope data.
+
+\textbf{[R14]} Whenever the system detects cycling movement based on sensor data, it shall automatically start collecting GPS coordinates and sensor readings.
+
+\textbf{[R15]} Whenever automatic detection identifies a potential obstacle, the system shall generate a detection item and store it in the User’s trip session.
+
+\textbf{[R16]} Upon completion of a trip, the system shall present the detected path and all detected obstacles to the User, requesting confirmation or correction.
+
+\textbf{[R17]} Whenever a Registered User confirms or corrects automatically detected information, the system shall convert such detections into contributions associated with the current path.
+
+% ----------------------------------------------------------
+
+\subsubsection*{Publication of Path Information}
+
+\textbf{[R18]} Upon request, the system shall allow a Registered User to publish any of their contributions (manual or confirmed automatic). %fgr spiega come funzionano le contributions diobon tu crei le contribution e poi decidi di postarle o le contributions sono già direttamente il post?
+
+\textbf{[R19]} Whenever a Registered User publishes a contribution, the system shall add the published information to the public dataset visible to all users.
+
+\textbf{[R20]} Whenever a recently completed trip ends and its detections are validated, the system shall offer the User an immediate option to publish the corresponding contribution.
+
+% ----------------------------------------------------------
+
+\subsubsection*{Path Consultation and Map Navigation}
+
+\textbf{[R21]} Upon request, the system shall allow any User (registered or unregistered) to browse the map of available bike paths.
+
+\textbf{[R22]} Upon request, the system shall allow the User to specify an origin and destination for route lookup.
+
+\textbf{[R23]} Whenever the system receives an origin and destination, it shall compute all viable bike paths connecting the two points.
+
+\textbf{[R24]} Whenever the system receives an origin and destination, it displays the top 5 best paths ranked by score.
+
+\textbf{[R25]} Whenever path results are displayed, the system shall show them ordered by a score reflecting path quality, safety, smoothness, and efficiency.
+
+\textbf{[R26]} Upon request, the system shall show detailed information about a selected path, including status, obstacles, and user contributions.
+
+% ----------------------------------------------------------
+
+\subsubsection*{Personalized Route Recommendations}
+
+\textbf{[R27]} Whenever a Registered User requests a route, the system shall tailor the ranking of available paths according to the User’s saved preferences.
+
+\textbf{[R28]} Whenever path scoring is computed, the system shall consider:
+\begin{itemize}
+    \item path condition,
+    \item number and type of obstacles,
+    \item consensus level from contributions,
+    \item efficiency toward destination,
+    \item traffic comfort indicators.
+\end{itemize}
+
+% ----------------------------------------------------------
+
+\subsubsection*{Data Aggregation and Consolidation}
+
+\textbf{[R29]} Whenever the system receives multiple contributions referring to the same path, it shall aggregate them by applying a prevalence strategy considering data recency and number of confirmations.
+
+\textbf{[R30]} Whenever aggregated data modifies the computed condition of a path, the system shall update the path status accordingly.
+
+\textbf{[R31]} Whenever a path status changes, the system shall notify Registered Users who marked that path as a favorite.
+
+% ----------------------------------------------------------
+
+\subsubsection*{Weather Data Enrichment}
+
+\textbf{[R32]} Whenever a trip is saved, the system shall request weather information (temperature, wind speed, weather conditions) from an external service based on trip time and location.
+
+\textbf{[R33]} Whenever weather data is retrieved, the system shall associate it with the corresponding trip summary.
+
+
+\section{User Characteristics}
+\begin{itemize}
+The BBP platform is designed for two main categories of users, each with different goals, levels of interaction, and technical proficiency.
+\item \textbf{Registered Users}\\
+Registered cyclists use the platform to record their trips, contribute information about bike paths, and access personalized features such as tailored route recommendations. They are typically familiar with mobile applications, GPS-based services, and standard interaction patterns such as registration, profile configuration, and map navigation. Their technical proficiency is generally medium to high, although the system is designed to remain accessible for less experienced users. Their motivation is to track their cycling activity, improve route planning, and contribute to the quality of shared path information. They may interact with the platform on a daily or weekly basis, especially when using BBP as part of their commuting routine or during periods of regular training.
+
+\item \textbf{Unregistered Users}\\
+Unregistered users access BBP to explore available bike paths without creating an account. Their interaction is limited to map browsing, viewing path details, and performing basic searches between an origin and destination. These users vary widely in their technical abilities, ranging from casual cyclists with minimal experience using navigation apps to proficient riders looking for quick route information. Their engagement frequency is typically low, consisting of occasional use on weekends or when planning new itineraries. Since they cannot record trips or publish data, their expectations focus primarily on a simple, intuitive map interface and clear visualization of path conditions.
+
+\item \textbf{Cross-User Expectations}\\
+All users expect BBP to provide:
+a simple and intuitive interface, accessible even to those with limited technical skills; reliable and up-to-date information on path conditions, obstacles, and safety; fast and accurate map navigation and trip visualization; privacy-respecting handling of location and sensor data. The system accommodates diverse levels of cycling expertise and device familiarity, ensuring accessibility and usability across the entire user base.
+
+\end{itemize}
+
+
+\section{Assumptions, Dependencies and Constraints}
