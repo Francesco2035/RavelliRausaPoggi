@@ -182,72 +182,77 @@ These statistics allow cyclists to review past activity and monitor their progre
 
 
 \section{Requirements}
+
+
+\newcounter{req}
+\setcounter{req}{1}
+\newcommand{\creq}{\thereq\stepcounter{req}}
 \subsubsection*{User Authentication and Profile Management}
-\item \textbf{[R1]} Upon request, the system shall allow a new User to sign up to the platform, as long as all required personal information is provided and no existing account is associated with the submitted email.
-\item \textbf{[R2]}Upon request, the system shall allow the User to log into the platform, as long as authentication succeeds, and access to his personal profile.
-\item \textbf{[R3]}Upon request, the system shall allow a Registered User to update their profile information, as long as all necessary data is provided.
-\item \textbf{[R4]}Whenever a Registered User updates their preferences, the system shall store these changes and apply them to future personalized route recommendations.
+
+\item \textbf{[R\creq]} Upon request, the system shall allow a new User to sign up to the platform, as long as all required personal information is provided and no existing account is associated with the submitted email.
+\item \textbf{[R\creq]}Upon request, the system shall allow the User to log into the platform, as long as authentication succeeds, and access to his personal profile.
+\item \textbf{[R\creq]}Upon request, the system shall allow a Registered User to update their profile information, as long as all necessary data is provided.
+\item \textbf{[R\creq]}Whenever a Registered User updates their preferences, the system shall store these changes and apply them to future personalized route recommendations.
 \subsubsection*{Trip Recording and Statistics}
-\item \textbf{[R5]}Upon request, the system shall allow a Registered User to manually start recording a trip, as long as GPS permissions are granted.
-\item \textbf{[R6]}Upon request, the system shall allow a Registered User to manually stop a trip that was previously started.
-\item \textbf{[R7]}Whenever a trip is recorded, the system shall store its GPS track, timestamps, and speed data into the User’s trip history.
-\item \textbf{[R8]}Whenever a trip is stored, the system shall compute statistics such as total distance, average speed, travel time, and other performance metrics.
-\item \textbf{[R9]}Upon request, the system shall show a Registered User the statistics of any of their stored trips.
+\item \textbf{[R\creq]}Upon request, the system shall allow a Registered User to manually start recording a trip, as long as GPS permissions are granted.
+\item \textbf{[R\creq]}Upon request, the system shall allow a Registered User to manually stop a trip that was previously started.
+\item \textbf{[R\creq]}Whenever a trip is recorded, the system shall store its GPS track, timestamps, and speed data into the User’s trip history.
+\item \textbf{[R\creq]}Whenever a trip is stored, the system shall compute statistics such as total distance, average speed, travel time, and other performance metrics.
+\item \textbf{[R\creq]}Upon request, the system shall show a Registered User the statistics of any of their stored trips.
 \subsubsection*{Manual Path Information Insertion}
 
-\textbf{[R10]} Upon request, the system shall allow a Registered User to manually insert information about a bike path, including street names, path status, and obstacles.
+\textbf{[R\creq]} Upon request, the system shall allow a Registered User to manually insert information about a bike path, including street names, path status, and obstacles.
 
-\textbf{[R11]} Whenever manual path information is submitted, the system shall store it as a contribution associated with the selected path. %chiedi FGR
+\textbf{[R\creq]} Whenever manual path information is submitted, the system shall store it as a contribution associated with the selected path. %chiedi FGR
 
-\textbf{[R12]} Upon request, the system shall allow the Registered User to edit or update any of their pending manual contributions.
+\textbf{[R\creq]} Upon request, the system shall allow the Registered User to edit or update any of their pending manual contributions.
 
 % ----------------------------------------------------------
 
 \subsubsection*{Automatic Path Detection and User Confirmation}
 
-\textbf{[R13]} Upon request, the system shall allow a Registered User to activate the automatic path detection mode, as long as the User grants access to GPS, accelerometer, and gyroscope data.
+\textbf{[R\creq]} Upon request, the system shall allow a Registered User to activate the automatic path detection mode, as long as the User grants access to GPS, accelerometer, and gyroscope data.
 
-\textbf{[R14]} Whenever the system detects cycling movement based on sensor data, it shall automatically start collecting GPS coordinates and sensor readings.
+\textbf{[R\creq]} Whenever the system detects cycling movement based on sensor data, it shall automatically start collecting GPS coordinates and sensor readings.
 
-\textbf{[R15]} Whenever automatic detection identifies a potential obstacle, the system shall generate a detection item and store it in the User’s trip session.
+\textbf{[R\creq]} Whenever automatic detection identifies a potential obstacle, the system shall generate a detection item and store it in the User’s trip session.
 
-\textbf{[R16]} Upon completion of a trip, the system shall present the detected path and all detected obstacles to the User, requesting confirmation or correction.
+\textbf{[R\creq]} Upon completion of a trip, the system shall present the detected path and all detected obstacles to the User, requesting confirmation or correction.
 
-\textbf{[R17]} Whenever a Registered User confirms or corrects automatically detected information, the system shall convert such detections into contributions associated with the current path.
+\textbf{[R\creq]} Whenever a Registered User confirms or corrects automatically detected information, the system shall convert such detections into contributions associated with the current path.
 
 % ----------------------------------------------------------
 
 \subsubsection*{Publication of Path Information}
 
-\textbf{[R18]} Upon request, the system shall allow a Registered User to publish any of their contributions (manual or confirmed automatic). %fgr spiega come funzionano le contributions diobon tu crei le contribution e poi decidi di postarle o le contributions sono già direttamente il post?
+\textbf{[R\creq]} Upon request, the system shall allow a Registered User to publish any of their contributions (manual or confirmed automatic). %fgr spiega come funzionano le contributions diobon tu crei le contribution e poi decidi di postarle o le contributions sono già direttamente il post?
 
-\textbf{[R19]} Whenever a Registered User publishes a contribution, the system shall add the published information to the public dataset visible to all users.
+\textbf{[R\creq]} Whenever a Registered User publishes a contribution, the system shall add the published information to the public dataset visible to all users.
 
-\textbf{[R20]} Whenever a recently completed trip ends and its detections are validated, the system shall offer the User an immediate option to publish the corresponding contribution.
+\textbf{[R\creq]} Whenever a recently completed trip ends and its detections are validated, the system shall offer the User an immediate option to publish the corresponding contribution.
 
 % ----------------------------------------------------------
 
 \subsubsection*{Path Consultation and Map Navigation}
 
-\textbf{[R21]} Upon request, the system shall allow any User (registered or unregistered) to browse the map of available bike paths.
+\textbf{[R\creq]} Upon request, the system shall allow any User (registered or unregistered) to browse the map of available bike paths.
 
-\textbf{[R22]} Upon request, the system shall allow the User to specify an origin and destination for route lookup.
+\textbf{[R\creq]} Upon request, the system shall allow the User to specify an origin and destination for route lookup.
 
-\textbf{[R23]} Whenever the system receives an origin and destination, it shall compute all viable bike paths connecting the two points.
+\textbf{[R\creq]} Whenever the system receives an origin and destination, it shall compute all viable bike paths connecting the two points.
 
-\textbf{[R24]} Whenever the system receives an origin and destination, it displays the top 5 best paths ranked by score.
+\textbf{[R\creq]} Whenever the system receives an origin and destination, it displays the top 5 best paths ranked by score.
 
-\textbf{[R25]} Whenever path results are displayed, the system shall show them ordered by a score reflecting path quality, safety, smoothness, and efficiency.
 
-\textbf{[R26]} Upon request, the system shall show detailed information about a selected path, including status, obstacles, and user contributions.
+\textbf{[R\creq]} Upon request, the system shall show detailed information about a selected path, including status, obstacles, and user contributions.
 
 % ----------------------------------------------------------
 
 \subsubsection*{Personalized Route Recommendations}
 
-\textbf{[R27]} Whenever a Registered User requests a route, the system shall tailor the ranking of available paths according to the User’s saved preferences.
+\textbf{[R\creq]} Whenever a Registered User requests a route, the system shall tailor the ranking of available paths according to the User’s saved preferences.
 
-\textbf{[R28]} Whenever path scoring is computed, the system shall consider:
+\textbf{[R\creq]} Whenever path scoring is computed, the system shall consider:
 \begin{itemize}
     \item path condition,
     \item number and type of obstacles,
@@ -260,19 +265,19 @@ These statistics allow cyclists to review past activity and monitor their progre
 
 \subsubsection*{Data Aggregation and Consolidation}
 
-\textbf{[R29]} Whenever the system receives multiple contributions referring to the same path, it shall aggregate them by applying a prevalence strategy considering data recency and number of confirmations.
+\textbf{[R\creq]} Whenever the system receives multiple contributions referring to the same path, it shall aggregate them by applying a prevalence strategy considering data recency and number of confirmations.
 
-\textbf{[R30]} Whenever aggregated data modifies the computed condition of a path, the system shall update the path status accordingly.
+\textbf{[R\creq]} Whenever aggregated data modifies the computed condition of a path, the system shall update the path status accordingly.
 
-\textbf{[R31]} Whenever a path status changes, the system shall notify Registered Users who marked that path as a favorite.
+\textbf{[R\creq]} Whenever a path status changes, the system shall notify Registered Users who marked that path as a favorite.
 
 % ----------------------------------------------------------
 
 \subsubsection*{Weather Data Enrichment}
 
-\textbf{[R32]} Whenever a trip is saved, the system shall request weather information (temperature, wind speed, weather conditions) from an external service based on trip time and location.
+\textbf{[R\creq]} Whenever a trip is saved, the system shall request weather information (temperature, wind speed, weather conditions) from an external service based on trip time and location.
 
-\textbf{[R33]} Whenever weather data is retrieved, the system shall associate it with the corresponding trip summary.
+\textbf{[R\creq]} Whenever weather data is retrieved, the system shall associate it with the corresponding trip summary.
 
 
 \section{User Characteristics}
@@ -291,4 +296,79 @@ a simple and intuitive interface, accessible even to those with limited technica
 \end{itemize}
 
 
+
+
+
+%aggiugnere varie soglie per le contribution in numeri interi naturali possibilmente non con parte complessa nei requirement e come effic. usare velocità media
+% modificare state diagram perchè non c'è la roba del controllo delle sogl.ie nella modifica del path
+
+
+% chiede al professore la roba delle preferenze
+% 10~20 sistemare requirement contribution
+
+
+
+
 \section{Assumptions, Dependencies and Constraints}
+\label{sec:assumptions_dependencies_constraints}%
+
+\subsection{Domain Assumptions}
+\label{subsec:domain_assumptions}%
+
+\newcounter{da}
+\setcounter{da}{1}
+\newcommand{\cda}{\theda\stepcounter{da}}
+    \textbf{[DA\cda]} The urban cycling infrastructure can be accurately represented by a finite set of interconnected paths.
+
+
+    \textbf{[DA\cda]} Each path corresponds to a real, navigable route that cyclists can take within the target city or area.
+
+
+    \textbf{[DA\cda]} Users always interact with the system through a device with a reliable Internet connection.
+
+
+    \textbf{[DA\cda]} Users who sign up to the platform possess a valid and active email address.
+
+
+    \textbf{[DA\cda]}  Users can access the mailbox of the email address provided during registration.
+
+
+    \textbf{[DA\cda]} Registered Users own a mobile device equipped with GPS, accelerometer, and gyroscope sensors.
+
+
+    \textbf{[DA\cda]} When automatic tracking is enabled, the mobile device’s sensors operate correctly and provide accurate data samples.
+
+
+    \textbf{[DA\cda]} The urban cycling infrastructure can be accurately represented by a finite set of interconnected paths.
+
+
+    \textbf{[DA\cda]} Users do not intentionally provide false information about bike paths, obstacles, or conditions.
+    %chiedere al prof, dato che potenzialmente facciamo i controlli con varie soglie e cheidere anche dei controlli pdfpgp
+
+
+    \textbf{[DA\cda]} Obstacles detected by the sensors during a trip correspond to actual modifications or irregularities of the physical path. %chiedere se ridondante
+
+
+    \textbf{[DA\cda]} The external meteorological services queried by BBP always return correct and timely information based on geographical coordinates and timestamps.
+
+
+    \textbf{[DA\cda]}  Map data and geolocation services used by BBP are available and functioning when the system computes paths between origin and destination.
+
+
+    \textbf{[DA\cda]} Users who manually insert or edit path information correctly identify the streets and segments they intend to describe.
+    % da chiedere sempre stessa questione
+
+
+    \textbf{[DA\cda]} Users who confirm or correct automatically detected obstacles provide honest and meaningful feedback, improving the reliability of aggregated contributions.
+    %chiedere
+
+
+    \textbf{[DA\cda]} The timestamps associated with trips and contributions reflect the actual moment in which the data was collected.
+
+
+    \textbf{[DA\cda]} When the system aggregates contributions, the recency and consistency rules are meaningful because users submit updates promptly after observing path changes.
+
+    
+
+
+%DA utenti non pubblicano false informazioni
