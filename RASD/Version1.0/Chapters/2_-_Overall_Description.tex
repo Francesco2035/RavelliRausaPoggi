@@ -100,13 +100,12 @@ This state diagram models the lifecycle of a user account within the application
 \subsubsection{Detection (Automatic Trip)}
 \begin{figure}[H]
     \begin{center}
-        \includegraphics[width=1\linewidth]{RASD/Version1.0/images/detection_state_diagram.png}
+        \includegraphics[width=1\linewidth]{RASD/Version1.0/images/automatic_tip_state_diagram.png}
         \caption{Detection (Automatic Trip).}
-        \label{fig:detection_state_diagram}%
+        \label{fig:automatic_trip_state_diagram}%
     \end{center}
 \end{figure}
-AUTOMATIC TRIP = schiccio tasto e registra, mi genera una contribution che posso approvare / modificare per poi decidere se salvarla solo nel mio storio o anche pubblicarla. eventualmente potrò pubblicarla dopo.
-The detection state diagram represents the lifecycle of an automatically generated detection based on sensor data collected during a cycling trip. When a trip is completed and relevant patterns are recognized in the sensor logs, a new detection is created and enters the ‘PendingConfirmation’ state. The application solicits user feedback: if the user confirms the obstacle, the detection transitions to ‘Confirmed’; otherwise, it proceeds to ‘Rejected’. Both confirmed and rejected detections are then archived, ending the detection’s lifecycle. This mechanism integrates automatic sensing with crowdsourced validation, ensuring only verified obstacles affect route recommendations and path information.
+The automatic trip workflow begins when the user simply presses a button to start recording. While the user is moving, the application continuously collects sensor and GPS data; if the user stops for a significant amount of time, the system automatically detects the lack of movement and pauses the recording, resuming it as soon as the ride restarts. At any moment, the user can explicitly terminate the trip by pressing the stop button, or decide to discard the recording, in which case no trip or contribution is stored. When a trip is successfully concluded, the system automatically generates a draft contribution populated with the information inferred from the recorded data. The user can review and edit this contribution, then either save it only in the personal trip history or publish it so that it becomes visible to other users; publication can also be postponed, allowing the user to keep the contribution private and decide later whether to make it public.
 
 
 \subsubsection{Manual Trip}
