@@ -1,0 +1,460 @@
+\section{External Interface Requirements}
+\label{sec:external_interface_requirements}
+
+\subsection{User Interfaces}
+\label{subsec:User_interfaces}
+
+
+
+
+
+
+\section{Functional Requirements}
+\label{sec:functional_requirements}
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.9\linewidth]{RASD/Version1.0/images/use_case_diagram.png}
+        \caption{Use Case Diagram} 
+        \label{fig:use_case_diagram}
+    \end{center}
+\end{figure}
+
+\newpage
+\subsection{Use Cases and Activity Diagrams}
+\label{subsec: use_cases}%
+
+\newcounter{ucsteps}
+\setcounter{ucsteps}{1}
+\newcommand{\cucsteps}{\theucsteps\stepcounter{ucsteps}}
+\newcommand{\resetucsteps}{\setcounter{ucsteps}{1}}
+
+\newcounter{uc}
+\setcounter{uc}{1}
+\newcommand{\cuc}{\theuc\stepcounter{uc}\resetucsteps}
+
+\subsubsection*{UC\cuc . Sign Up}
+\begin{center}
+    \begin{longtable}{|l|p{0.75\linewidth}|}
+        \hline
+        \textbf{Actor}            & User\\
+        \hline
+        \textbf{Entry Conditions} & The User is not logged into the platform and is on the homepage. \\
+        \hline
+        \textbf{Flow of Events}    
+        & \cucsteps. On the homepage, the User clicks the ``Sign up'' button. \\
+        & \cucsteps. The system displays the registration form. \\
+        & \cucsteps. The User inserts the required registration details (e.g., email, password, password confirmation and role). \\
+        & \cucsteps. The User confirms the provided information by clicking the ``Register'' button. \\
+        & \cucsteps. The system checks the completeness and validity of the submitted data. \\
+        & \cucsteps. If the data is valid, the system sends a confirmation email containing a verification link that expires after 24 hours. \\
+        & \cucsteps. The User clicks the confirmation link in the email before it expires. \\
+        & \cucsteps. The system allows the User to access the profile page and complete the profile by inserting the remaining personal details. \\
+        \hline
+        \textbf{Exit Conditions}   & The User account is created and verified, and the profile is completed so that the User can access the platform functionalities.\\       
+        \hline
+        \textbf{Exceptions}       & \begin{itemize}[leftmargin=*]
+            \item Some mandatory fields are missing: the system notifies ``Missing mandatory fields'' and does not allow the User to proceed until all required fields are filled in.
+            \item The password does not satisfy the platform's security requirements: the system notifies ``Invalid password'' and prompts the User to correct it.
+            \item The email address is already linked to an existing account: the system notifies ``Email already linked'' and redirects the User to the login page.
+            \item The confirmation link expires before being used: the system discards all data previously inserted by the User and invalidates the link.
+        \end{itemize} \\
+        \hline
+    \end{longtable}
+\end{center}
+
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=0.5\linewidth]{RASD/Version1.0/images/activity diagram/UC1.png}
+         \caption{Sign Up}
+         \label{fig:signup_student_ad}
+     \end{center}
+\end{figure}
+
+\newpage
+
+
+\subsubsection*{UC\cuc . Sign In}
+\begin{center}
+    \begin{longtable}{|l|p{0.75\linewidth}|}
+        \hline
+        \textbf{Actor}            & User \\
+        \hline
+        \textbf{Entry Conditions} & The User is not logged into the platform and is on the homepage. \\
+        \hline
+        \textbf{Flow of Events}    
+        & \cucsteps. On the homepage, the User clicks the ``Sign in'' button. \\
+        & \cucsteps. The system displays the login form. \\
+        & \cucsteps. The User enters their credentials (email and password). \\
+        & \cucsteps. The User clicks the ``Login'' button to submit the credentials. \\
+        & \cucsteps. The system validates the provided credentials. \\
+        & \cucsteps. If the credentials are valid and the account is verified, the system checks whether the User's profile is complete. \\
+        & \cucsteps. If the profile is complete, the system redirects the User to the Home page. \\
+        & \cucsteps. If the profile is not complete, the system redirects the User to the ``Update profile'' page. \\
+        \hline
+        \textbf{Exit Conditions}   & The User is successfully authenticated and is redirected either to the Home page or to the profile completion page.\\
+        \hline
+        \textbf{Exceptions}       & {%
+            \begin{itemize}[leftmargin=*]
+                \item The entered credentials are not valid: the system notifies ``Entered credentials are not valid'' and does not log the User in.
+                \item The account associated with the provided email is not verified: the system notifies ``Account not verified'' and does not log the User in.
+            \end{itemize}
+        } \\
+        \hline
+    \end{longtable}
+\end{center}
+
+
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=0.5\linewidth]{RASD/Version1.0/images/activity diagram/UC2.png}
+         \caption{Sign In}
+         \label{fig:signin}
+     \end{center}
+\end{figure}
+
+\newpage
+
+
+\subsubsection*{UC\cuc . Delete Account}
+\begin{center}
+    \begin{longtable}{|l|p{0.75\linewidth}|}
+        \hline
+        \textbf{Actor}            & Registered User \\
+        \hline
+        \textbf{Entry Conditions} & The Registered User is logged into the platform and is on the account settings page. \\
+        \hline
+        \textbf{Flow of Events}    
+        & \cucsteps. The User opens the account settings section. \\
+        & \cucsteps. The User selects the ``Delete account'' option. \\
+        & \cucsteps. The system shows a warning explaining the consequences of account deletion and asks the User whether they want to continue. \\
+        & \cucsteps. The User confirms the intention to proceed with account deletion. \\
+        & \cucsteps. The system requests re-authentication by asking the User to enter their credentials. \\
+        & \cucsteps. The User inserts their credentials and submits them. \\
+        & \cucsteps. The system validates the provided credentials. \\
+        & \cucsteps. If the credentials are valid, the system removes the User profile and related personal information. \\
+        & \cucsteps. The system deletes the trips stored for the User. \\
+        & \cucsteps. The system deletes the User's preferences and local settings. \\
+        & \cucsteps. The system invalidates any active sessions and authentication tokens associated with the User. \\
+        & \cucsteps. The system notifies the User that the account has been successfully deleted. \\
+        \hline
+        \textbf{Exit Conditions}   & The User account and all associated data are deleted, and the User is no longer able to access the platform with the previous credentials.\\
+        \hline
+        \textbf{Exceptions}       & {%
+            \begin{itemize}[leftmargin=*]
+                \item The User cancels the deletion after viewing the warning: the system returns the User to the account settings page without performing any deletion.
+                \item The re-authentication credentials are not valid: the system notifies the User that the credentials are invalid and returns to the account settings page without deleting the account.
+            \end{itemize}
+        } \\
+        \hline
+    \end{longtable}
+\end{center}
+
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=0.9\linewidth]{RASD/Version1.0/images/activity diagram/UC3.png}
+         \caption{Delete Account}
+         \label{fig:delete_account}
+     \end{center}
+\end{figure}
+
+\newpage
+
+
+\subsubsection*{UC\cuc . Logout}
+\begin{center}
+    \begin{longtable}{|l|p{0.75\linewidth}|}
+        \hline
+        \textbf{Actor}            & User \\
+        \hline
+        \textbf{Entry Conditions} & The User is logged into the platform. \\
+        \hline
+        \textbf{Flow of Events}    
+        & \cucsteps. The User clicks on the ``Logout'' button. \\
+        & \cucsteps. The system receives the logout request. \\
+        & \cucsteps. The system terminates the User's session and invalidates any active authentication token. \\
+        & \cucsteps. The system redirects the User to the Home screen. \\
+        \hline
+        \textbf{Exit Conditions}   & The User's session is terminated, and the User is no longer authenticated on the platform.\\
+        \hline
+        \textbf{Exceptions}       & {%
+            \begin{itemize}[leftmargin=*]
+                \item None.
+            \end{itemize}
+        } \\
+        \hline
+    \end{longtable}
+\end{center}
+
+
+
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=0.9\linewidth]{RASD/Version1.0/images/activity diagram/UC4.png}
+         \caption{Logout}
+         \label{fig:Logout}
+     \end{center}
+\end{figure}
+
+\newpage
+
+\subsubsection*{UC\cuc . Edit Profile}
+\begin{center}
+    \begin{longtable}{|l|p{0.75\linewidth}|}
+        \hline
+        \textbf{Actor}            & Registered User \\
+        \hline
+        \textbf{Entry Conditions} & The Registered User is logged into the platform. \\
+        \hline
+        \textbf{Flow of Events}    
+        & \cucsteps. The User clicks on the ``Profile'' section. \\
+        & \cucsteps. The User clicks on the ``Edit profile'' option inside the settings. \\
+        & \cucsteps. The system displays the editable profile form, including personal data and preference fields. \\
+        & \cucsteps. The User updates the desired information, such as personal details and visualization preferences (e.g., preferred path filters based on past trips). \\
+        & \cucsteps. The User clicks the ``Apply'' button to confirm the changes. \\
+        & \cucsteps. The system validates the submitted changes. \\
+        & \cucsteps. If the changes are valid, the system stores them and notifies the User of the successful update. \\
+        \hline
+        \textbf{Exit Conditions}   & The User's profile and preferences are updated and consistently stored in the system.\\
+        \hline
+        \textbf{Exceptions}       & {%
+            \begin{itemize}[leftmargin=*]
+                \item Some updated fields are not valid (e.g., invalid email format or unsupported preference values): the system notifies the User that the changes are not valid and does not apply them.
+            \end{itemize}
+        } \\
+        \hline
+    \end{longtable}
+\end{center}
+
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=0.9\linewidth]{RASD/Version1.0/images/activity diagram/UC5.png}
+         \caption{Edit Profile}
+         \label{fig:edit_profile}
+     \end{center}
+\end{figure}
+
+\newpage
+
+\subsubsection*{UC\cuc . View Trip History}
+\begin{center}
+    \begin{longtable}{|l|p{0.75\linewidth}|}
+        \hline
+        \textbf{Actor}            & Registered User \\
+        \hline
+        \textbf{Entry Conditions} & The Registered User is logged into the platform. \\
+        \hline
+        \textbf{Flow of Events}    
+        & \cucsteps. The User clicks on the ``My trips'' section. \\
+        & \cucsteps. The system retrieves the trips associated with the User and shows the list of available trips. \\
+        & \cucsteps. The User selects one trip from the list. \\
+        & \cucsteps. The system shows the selected trip together with its stored data and associated contributions. \\
+        & \cucsteps. The User chooses an action for the selected trip (e.g., to publish its contributions or to simply inspect the data). \\
+        & \cucsteps. If the User decides to publish the contributions of the trip, the system starts the \hyperref[sec:publish_contribution]{\uline{UC.~Publishing Contribution}} use case for the first contribution associated with that trip. \\
+        & \cucsteps. The system iteratively processes the contributions linked to the trip, publishing them one at a time so that merge and update policies on paths can be correctly applied for each contribution. \\
+        & \cucsteps. When there are no more contributions to process, the system returns control to the trip view. \\
+        & \cucsteps. For readability, the activity diagram omits the fact that the User can navigate back to previous pages (trip list or other sections of the app) at any point in the interaction. \\
+        \hline
+        \textbf{Exit Conditions}   & The User has viewed the selected trip and, if desired, has published some or all of the contributions associated with that trip.\\
+        \hline
+        \textbf{Exceptions}       & {%
+            \begin{itemize}[leftmargin=*]
+                \item The User has no stored trips: the system shows an empty list and may display an informative message.
+                \item The selected trip has no associated contributions: the system shows the trip data but does not start the publishing process.
+            \end{itemize}
+        } \\
+        \hline
+    \end{longtable}
+\end{center}
+
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=0.9\linewidth]{RASD/Version1.0/images/activity diagram/UC6.png}
+         \caption{View Trip History}
+         \label{fig:view_trip_history}
+     \end{center}
+\end{figure}
+
+\newpage
+
+
+
+
+\subsubsection*{UC\cuc . Publish Contribution}
+\begin{center}
+    \begin{longtable}{|l|p{0.75\linewidth}|}
+        \hline
+        \textbf{Actor}            & System (invoked from other use cases, e.g. View Trip History) \\
+        \hline
+        \textbf{Entry Conditions} & A Contribution has been selected for publication (for example, from a Trip in the User's history). \\
+        \hline
+        \textbf{Flow of Events}    
+        & \cucsteps. The system validates the selected Contribution, checking that its data is complete and consistent. \\
+        & \cucsteps. If the Contribution is valid, the system retrieves from the database any existing Contribution(s) referring to the same street or path segment. \\
+        & \cucsteps. The system applies the configured merging policy to combine the new Contribution with the existing information (e.g., updating or aggregating obstacle data on that path). \\
+        & \cucsteps. The system updates the corresponding path information in the database according to the result of the merging policy. \\
+        & \cucsteps. The system flags the User's Contribution as published. \\
+        & \cucsteps. The system notifies the successful publication of the Contribution to the invoking use case. \\
+        \hline
+        \textbf{Exit Conditions}   & The Contribution is marked as published and the affected path information in the database has been updated according to the merging policy.\\
+        \hline
+        \textbf{Exceptions}       & {%
+            \begin{itemize}[leftmargin=*]
+                \item The Contribution is not valid (e.g., missing mandatory data or inconsistent location): the system notifies the failure and does not modify any existing path information.
+                \item A database error occurs while retrieving or updating existing Contributions: the system notifies the failure and leaves the User's Contribution in a non-published state.
+            \end{itemize}
+        } \\
+        \hline
+    \end{longtable}
+\end{center}
+
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=0.4\linewidth]{RASD/Version1.0/images/activity diagram/UC7.png}
+         \caption{Publish Contribution}
+         \label{fig:publish_contribution}
+     \end{center}
+\end{figure}
+
+\newpage
+
+
+\subsubsection*{UC\cuc . View Map}
+\begin{center}
+    \begin{longtable}{|l|p{0.75\linewidth}|}
+        \hline
+        \textbf{Actor}            & User \\
+        \hline
+        \textbf{Entry Conditions} & The User is logged into the platform and has access to the map functionality. \\
+        \hline
+        \textbf{Flow of Events}    
+        & \cucsteps. The User clicks on the ``Map'' section. \\
+        & \cucsteps. The system loads the default map region (e.g., around the User's current position or last viewed area). \\
+        & \cucsteps. The system retrieves the visible bike-path data for the current map region. \\
+        & \cucsteps. The system displays the map together with the visible paths and their associated contributions (e.g., obstacles, warnings, roadworks). \\
+        & \cucsteps. The User chooses an action on the map view (e.g., search for a path, tap on a displayed path segment, move around the map, or start following a path). \\
+        & \cucsteps. If the User searches for a specific path or destination, the system invokes the \hyperref[search_path]{\uline{UC.~Search Path}} use case and, after the search is completed, updates the map with the best suggested paths (e.g., top 5). \\
+        & \cucsteps. If the User taps on a displayed path, the system shows the selected path with more detailed information, including aggregated contributions along that path. \\
+        & \cucsteps. If the User decides to follow a selected path, the system redirects the User to the ``Automatic trip mode'' page and invokes the \hyperref[sec:uc_follow_path]{\uline{UC.~Follow Path}} use case. \\
+        & \cucsteps. If the User simply moves around the map (pan/zoom), the system retrieves bike-path data for the newly visible region and refreshes the map with updated paths and contributions. \\
+        & \cucsteps. For readability, the activity diagram omits that the User can exit the map or return to previous sections of the application at any time during the interaction. \\
+        \hline
+        \textbf{Exit Conditions}   & The User has visualized the desired map area, inspected the available paths and related contributions, and optionally started following a selected path.\\
+        \hline
+        \textbf{Exceptions}       & {%
+            \begin{itemize}[leftmargin=*]
+                \item No bike-path data is available for the current map region: the system still displays the map but shows an informative message indicating that no paths are present.
+                \item A temporary error occurs while retrieving path data or contributions: the system notifies the User of the failure and suggests retrying the operation.
+            \end{itemize}
+        } \\
+        \hline
+    \end{longtable}
+\end{center}
+
+
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=1\linewidth]{RASD/Version1.0/images/activity diagram/UC8.png}
+         \caption{View Map}
+         \label{fig:view_map}
+     \end{center}
+\end{figure}
+
+\newpage
+
+\subsubsection*{UC\cuc . Search Path}
+\begin{center}
+    \begin{longtable}{|l|p{0.75\linewidth}|}
+        \hline
+        \textbf{Actor}            & User \\
+        \hline
+        \textbf{Entry Conditions} & The User is on a page where the map and the path search functionality are available (e.g., from \hyperref[view_map]{\uline{UC.~View Map}}). \\
+        \hline
+        \textbf{Flow of Events}    
+        & \cucsteps. The User specifies the start and end points of the desired path (e.g., origin and destination on the map or via textual input). \\
+        & \cucsteps. The system retrieves from the database the bike paths that connect the specified start and end points, if any exist. \\
+        & \cucsteps. The system checks whether the User is registered or unregistered. \\
+        & \cucsteps. If the User is registered, the system orders the retrieved paths according to the User's saved preferences and the trips recently completed by the User (e.g., preferred difficulty, usual routes). \\
+        & \cucsteps. The system returns the list of searched bike paths to the invoking use case, already ordered if the User is registered. \\
+        \hline
+        \textbf{Exit Conditions}   & A set of bike paths matching the specified start and end points is produced and made available to the calling functionality.\\
+        \hline
+        \textbf{Exceptions}       & {%
+            \begin{itemize}[leftmargin=*]
+                \item No bike path exists connecting the specified start and end points: the system returns an empty result and may provide an informative message to the User.
+                \item A temporary error occurs while retrieving paths from the database: the system notifies the failure and suggests the User to retry the search.
+            \end{itemize}
+        } \\
+        \hline
+    \end{longtable}
+\end{center}
+
+
+
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=0.8\linewidth]{RASD/Version1.0/images/activity diagram/UC9.png}
+         \caption{Search Path}
+         \label{fig:search_path}
+     \end{center}
+\end{figure}
+
+\newpage
+
+
+
+\subsubsection*{UC\cuc . Manual Insertion}
+\begin{center}
+    \begin{longtable}{|l|p{0.75\linewidth}|}
+        \hline
+        \textbf{Actor}            & Registered User \\
+        \hline
+        \textbf{Entry Conditions} & The Registered User is logged into the platform and has access to the manual trip insertion functionality. \\
+        \hline
+        \textbf{Flow of Events}    
+        & \cucsteps. The system loads the default map region and initializes an empty \textit{TripDraft}. \\
+        & \cucsteps. The User chooses how to add bike paths to the TripDraft (e.g., by manually selecting streets on the map or by searching for existing paths). \\
+        & \cucsteps. If the User chooses to search for a path, the system invokes \hyperref[sec:uc_search_path]{\uline{UC.~Search Path}} and lets the User select one of the returned paths. \\
+        & \cucsteps. For each selected or manually specified street, the system adds the corresponding bike path to the TripDraft and updates the map accordingly. \\
+        & \cucsteps. The system asks the User whether the definition of the trip is finished; the User may repeat the previous step to add more streets. For readability, the activity diagram does not explicitly show that the User can also remove or adjust previously selected streets. \\
+        & \cucsteps. Once the trip definition is complete, the system checks the validity of the TripDraft (e.g., at least one street, consistent geometry). If the TripDraft is not valid, the system shows an error and asks the User to correct it. \\
+        & \cucsteps. The User chooses an action on the completed TripDraft (e.g., add contributions, save as trip, publish as report, or discard). \\
+        & \cucsteps. If the User decides to add contributions, the User selects a street from the TripDraft and specifies a Contribution describing the status of that street (e.g., potholes, obstacles, roadworks). \\
+        & \cucsteps. The system checks the validity of each added Contribution and, if a Contribution is not valid, removes it from the TripDraft and notifies the User. \\
+        & \cucsteps. If the User chooses to save the TripDraft as a trip, the system saves the trip in the User's history and asks whether the associated Contributions should also be published (following the same iterative publication mechanism described for trips). \\
+        & \cucsteps. If the User chooses to publish the information only as a report, the system treats the selected street and its Contribution as a standalone report, publishes the Contribution (without saving the TripDraft as a trip), and updates the corresponding path information. \\
+        & \cucsteps. If the User chooses not to publish any Contribution, the system simply saves the trip in the User's history without publishing. \\
+        & \cucsteps. If the User decides to discard the TripDraft, the system deletes all temporary data and terminates the use case. \\
+        \hline
+        \textbf{Exit Conditions}   & The User has either saved a manually defined trip (optionally with published Contributions), published one or more standalone reports about specific streets, or discarded the manual insertion.\\
+        \hline
+        \textbf{Exceptions}       & {%
+            \begin{itemize}[leftmargin=*]
+                \item The TripDraft is not valid (e.g., no street selected or inconsistent data): the system notifies the error and does not allow the User to save or publish until the trip is corrected.
+                \item One or more Contributions added to the TripDraft are not valid (e.g., missing mandatory fields): the system removes the invalid Contributions and asks the User to review them.
+                \item A temporary error occurs while saving the trip or publishing Contributions: the system notifies the failure and suggests the User to retry the operation.
+            \end{itemize}
+        } \\
+        \hline
+    \end{longtable}
+\end{center}
+
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=1\linewidth]{RASD/Version1.0/images/activity diagram/UC10.png}
+         \caption{Manual Insertion}
+         \label{fig:uc_manual_insertion}
+     \end{center}
+\end{figure}
+
+\newpage
