@@ -287,6 +287,7 @@
 
 
 \subsubsection*{UC\cuc . Publish Contribution}
+\label{sec:uc_publish_contribution}
 \begin{center}
     \begin{longtable}{|l|p{0.75\linewidth}|}
         \hline
@@ -371,6 +372,7 @@
 \newpage
 
 \subsubsection*{UC\cuc . Search Path}
+\label{sec:uc_search_path}
 \begin{center}
     \begin{longtable}{|l|p{0.75\linewidth}|}
         \hline
@@ -453,8 +455,176 @@
     \begin{center}
          \includegraphics[width=1\linewidth]{RASD/Version1.0/images/activity diagram/UC10.png}
          \caption{Manual Insertion}
-         \label{fig:uc_manual_insertion}
+         \label{fig:manual_insertion}
      \end{center}
 \end{figure}
 
 \newpage
+
+\subsubsection*{UC\cuc . Automatic Insertion}
+\label{sec:uc_automatic_insertion}
+\begin{center}
+    \begin{longtable}{|l|p{0.75\linewidth}|}
+        \hline
+        \textbf{Actor}            & Registered User \\
+        \hline
+        \textbf{Entry Conditions} & The Registered User is logged into the platform and has a device with GPS and motion sensors enabled. \\
+        \hline
+        \textbf{Flow of Events}    
+        & \cucsteps. The User presses the ``Start recording'' button to begin an automatic trip. \\
+        & \cucsteps. The system initializes a new \textit{RecordingSession}. \\
+        & \cucsteps. The system starts GPS tracking and activates accelerometer and gyroscope monitoring. \\
+        & \cucsteps. While the recording is active, the system periodically acquires GPS samples and motion sensor data. \\
+        & \cucsteps. For each batch of sensor data, the system applies inference algorithms to detect potential obstacles (e.g., potholes, bumps) and, when a relevant pattern is recognized, creates a draft Contribution associated with the current path segment. \\
+        & \cucsteps. In parallel, the system monitors the User's movement to detect interruptions: it compares the current GPS position with the previous one and, if the distance travelled is below a movement threshold for a configurable time window, it marks the User as stationary; when movement resumes, the stationary status is cleared. \\
+        & \cucsteps. This logic, represented in the activity diagram, captures both obstacle detection through sensor inference and the automatic identification of stops and resumptions during the trip. \\
+        & \cucsteps. The recording continues until the system receives an ``end recording'' event from the User. \\
+        & \cucsteps. When the recording is stopped, the system stops GPS and motion sensors. \\
+        & \cucsteps. The system reconstructs the full path of the trip from the collected GPS trace and calculates trip statistics (e.g., distance, average speed). \\
+        & \cucsteps. The system may optionally invoke \hyperref[sec:uc_enrich_trip_weather]{\uline{UC.~Enrich Trip with Weather Information}} to enrich the trip with external    weather data associated with the GPS trace. \\
+
+        & \cucsteps. The system redirects the User to the ``Review and edit'' screen and includes \hyperref[sec:uc_edit_trip]{\uline{UC.~Edit Trip}} so that the User can review the automatically generated trip, edit its path if needed, and decide how to handle the associated Contributions. \\
+        \hline
+        \textbf{Exit Conditions}   & An automatic trip has been recorded with its reconstructed path, computed statistics, and a set of draft Contributions inferred from sensor data and detected interruptions; control is passed to the manual review/edit phase.\\
+        \hline
+        \textbf{Exceptions}       & {%
+            \begin{itemize}[leftmargin=*]
+                \item Sensors or GPS are not available or cannot be started: the system notifies the User and does not start the automatic recording.
+                \item A temporary error occurs while acquiring sensor data: the system attempts to continue with partial data and informs the User that some parts of the trip may be incomplete.
+            \end{itemize}
+        } \\
+        \hline
+    \end{longtable}
+\end{center}
+
+
+
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=0.85\linewidth]{RASD/Version1.0/images/activity diagram/UC11.png}
+         \caption{Automatic Insertion}
+         \label{fig:automatic_insertion}
+     \end{center}
+\end{figure}
+
+\newpage
+
+\subsubsection*{UC\cuc . Enrich Trip with Weather Information}
+\label{sec:uc_enrich_trip_weather}
+\begin{center}
+    \begin{longtable}{|l|p{0.75\linewidth}|}
+        \hline
+        \textbf{Actor}            & System (Weather Service as external actor) \\
+        \hline
+        \textbf{Entry Conditions} & A TripDraft has been created and its GPS trace with timestamps is available. \\
+        \hline
+        \textbf{Flow of Events}    
+        & \cucsteps. The system prepares a weather request using the trip's GPS trace and associated timestamps (e.g., start/end time and representative points along the route). \\
+        & \cucsteps. The system sends the request to the external Weather Service API. \\
+        & \cucsteps. The Weather Service receives the weather request. \\
+        & \cucsteps. The Weather Service checks its availability for the given time and location. \\
+        & \cucsteps. If the service is available, the Weather Service fetches the weather conditions corresponding to the requested time/place and returns the weather data to the system. \\
+        & \cucsteps. If the service is not available or an internal error occurs, the Weather Service returns an error response to the system instead of weather data. \\
+        & \cucsteps. Upon receiving the response, the system checks whether the request completed without errors. \\
+        & \cucsteps. If no error occurred, the system attaches the retrieved weather data to the TripDraft so that it can be stored together with the trip and shown in the trip details. \\
+        & \cucsteps. If an error occurred, the system marks the trip as ``no weather data available'' and continues without weather enrichment. \\
+        \hline
+        \textbf{Exit Conditions}   & The TripDraft is enriched with weather information associated with its GPS trace, or it is explicitly marked as having no weather data available.\\
+        \hline
+        \textbf{Exceptions}       & {%
+            \begin{itemize}[leftmargin=*]
+                \item The Weather Service is temporarily unavailable or returns an error: the system marks the trip as ``no weather data available'' and does not retry immediately.
+                \item The GPS trace is incomplete or does not contain valid timestamps: the system does not send the request to the Weather Service and leaves the TripDraft without weather information.
+            \end{itemize}
+        } \\
+        \hline
+    \end{longtable}
+\end{center}
+
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=1\linewidth]{RASD/Version1.0/images/activity diagram/UC12.png}
+         \caption{Enrich Trip with Weather Information}
+         \label{fig:uc_enrich_trip_with_weather_information}
+     \end{center}
+\end{figure}
+
+\newpage
+
+
+
+\subsubsection*{UC\cuc . Edit Trip}
+\label{sec:uc_edit_trip}
+\begin{center}
+    \begin{longtable}{|l|p{0.75\linewidth}|}
+        \hline
+        \textbf{Actor}            & Registered User \\
+        \hline
+        \textbf{Entry Conditions} & A recorded trip (automatic defined) and its associated draft Contributions are available for review (at the end of recording). \\
+        \hline
+        \textbf{Flow of Events}    
+        & \cucsteps. The system shows the trip together with the obstacles and Contributions that have been automatically detected. \\
+        & \cucsteps. The User inspects the detected obstacles and Contributions and may confirm them, adjust their details, or remove the ones considered incorrect. \\
+        & \cucsteps. The User can also add missing Contributions for streets included in the trip by selecting a street and specifying additional information (e.g., a new obstacle or warning). \\
+        & \cucsteps. After reviewing the Contributions, the User chooses an action (e.g., store only, store and publish, or discard). \\
+        & \cucsteps. If the User chooses to \textit{store and publish}, the system iteratively processes the Contributions associated with the trip: for each Contribution, the system invokes \hyperref[sec:uc_publish_contribution]{\uline{UC.~Publish Contribution}} and then selects the next Contribution until there are no more. \\
+        & \cucsteps. Once all Contributions have been processed, the system stores the trip in the User's history together with the final set of Contributions. \\
+        & \cucsteps. If the User chooses to \textit{store} without publishing, the system skips the publication step and only stores the trip and its Contributions in the User's history as private data. \\
+        & \cucsteps. If the User decides to \textit{discard}, the system deletes the trip data and all associated draft Contributions, terminating the use case. \\
+        \hline
+        \textbf{Exit Conditions}   & The trip is either stored (with or without published Contributions) in the User's history, or it has been completely discarded.\\
+        \hline
+        \textbf{Exceptions}       & {%
+            \begin{itemize}[leftmargin=*]
+                \item An error occurs while storing the trip or its Contributions: the system notifies the User of the failure and suggests retrying the operation; no partial or inconsistent trip data is left saved.
+                \item An error occurs during the publication of a Contribution (in the included UC Publish Contribution): the system notifies the User and leaves the affected Contribution in a non-published state while still allowing the rest of the trip to be stored.
+            \end{itemize}
+        } \\
+        \hline
+    \end{longtable}
+\end{center}
+
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=0.9\linewidth]{RASD/Version1.0/images/activity diagram/UC13.png}
+         \caption{Edit Trip}
+         \label{fig:uc_edit_trip}
+     \end{center}
+\end{figure}
+
+\newpage
+
+
+
+\subsubsection*{UC\cuc . Follow Path (extends UC.~Automatic Insertion)}
+\begin{center}
+    \begin{longtable}{|l|p{0.75\linewidth}|}
+        \hline
+        \textbf{Actor}            & Registered User \\
+        \hline
+        \textbf{Entry Conditions} & 
+        The User has selected a path from the map (see \hyperref[sec:uc_view_map]{\uline{UC.~View Map}}) and chooses to follow it. \\
+        \hline
+        \textbf{Flow of Events}    
+        & \cucsteps. The system highlights the selected path on the map and opens a dedicated ``Follow path'' view. \\
+        & \cucsteps. The User starts recording, triggering \hyperref[sec:uc_automatic_insertion]{\uline{UC.~Automatic Insertion}} for the current session. \\
+        & \cucsteps. While the recording is active, the map keeps the chosen path visually highlighted; the User is free to follow it or deviate from it, and the system does not recompute or enforce the route. \\
+        & \cucsteps. All other behaviours (trip recording, obstacle inference, interruption detection, reconstruction of the path, statistics computation and subsequent review/edit) follow exactly the flow described in UC.~Automatic Insertion. \\
+        \hline
+        \textbf{Exit Conditions}   & 
+        An automatic trip has been recorded while a selected path was highlighted on the map; the resulting trip is then handled as in UC.~Automatic Insertion (review, edit, store, publish). \\
+        \hline
+        \textbf{Exceptions}       & {%
+            \begin{itemize}[leftmargin=*]
+                \item Sensors or GPS are not available: the system notifies the User and does not start the follow-path recording.
+            \end{itemize}
+        } \\
+        \hline
+    \end{longtable}
+\end{center}
+\noindent\textit{Remark.}
+Since the behaviour of this use case is almost identical to \hyperref[sec:uc_automatic_insertion]{\uline{UC.~Automatic Insertion}},
+apart from the highlighted path on the map and the absence of route recalculation, no dedicated activity diagram is provided.
