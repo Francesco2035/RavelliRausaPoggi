@@ -190,7 +190,11 @@ By defining these actions carefully, we ensured that the system’s evolution re
 \subsection{Contribution and Detection Management Logic}
 We have formalized how contributions and detections are managed in the system, including their creation, association with trips, publication, and eventual merging. The model guarantees that each contribution is linked to exactly one trip and one author, and that detection confirmations correctly generate contributions without introducing inconsistencies.
 
-These parts of the system are the most critical, as they capture the complex interactions between registered users, trips, and the dynamic data collected from the environment. To keep the model tractable and understandable, we intentionally omitted less critical aspects, such as user deletion or detailed weather data processing, focusing on the key functionalities needed to validate system behavior.
+These parts of the system are the most critical, as they capture the complex interactions between registered users, trips, and the dynamic data collected from the environment. To keep the model tractable and understandable, we intentionally omitted less critical aspects, such as user deletion or detailed weather data processing, focusing on the key functionalities needed to validate system behavior. 
+
+\textbf{Note:} The merging logic has been simplified for the sake of clarity; specifically, the automatic transformation of \texttt{BikeSuitability} information was decoupled from the primary \texttt{merge} predicate due to its complexity. However, the impact of these suitability updates on the environment was still rigorously verified within the final functional scenario (\texttt{PathBreakScenario}).
+
+
 
 \section{The Model}
 
@@ -222,31 +226,27 @@ module signatures
 
 open util/boolean
 
-
-// BASIC ENTITIES
-
+// --- BASIC ENTITIES ---
 
 sig Coordinate {}
 
 one sig WeatherService {}
+
 sig WeatherInfo {}
 
-
-// USERS
-
+// --- USERS ---
 
 var abstract sig User {}
 
 var sig UnregisteredUser extends User {}
 
 var sig RegisteredUser extends User {
+    // Dynamic relations tracking a user's activity
     var contributions: set Contribution,
     var trips: set Trip
 }
 
-
-// TRIPS
-
+// --- TRIPS ---
 
 var abstract sig Trip {
     var contributions: set Contribution,
@@ -256,24 +256,21 @@ var abstract sig Trip {
 var sig ManualTrip extends Trip {}
 
 var sig AutomaticTrip extends Trip {
+    // Automatic trips include external weather data and sensor detections
     var weatherData: lone WeatherInfo,
     var detections: set Detection
 }
 
-
-// DETECTIONS
-
+// --- DETECTIONS ---
 
 var sig Detection {
     var detectedInfo: one Information,
     var onStreet: one StreetSegment,
     var confirmed: one Bool,
     var score: one Score
-}
+} 
 
-
-// INFORMATION
-
+// --- INFORMATION ---
 
 var abstract sig Information {
     var position: one Coordinate
@@ -290,9 +287,7 @@ var sig SpeedLimUpdate extends BikeSuitability {}
 var sig BikeLaneUpdate extends BikeSuitability {}
 var sig HeavyTraffic extends BikeSuitability {}
 
-
-// CONTRIBUTIONS
-
+// --- CONTRIBUTIONS ---
 
 var sig Contribution {
     var author: lone RegisteredUser,
@@ -301,35 +296,32 @@ var sig Contribution {
     var score: one Score
 }
 
+// Subset of contributions that have been verified and integrated into the map
 var sig PublishedContribution in Contribution {}
 
-
-// PATH GENERATION
-
+// --- PATH GENERATION ---
 
 one sig PathGenerate {
     var activePaths: set Path
 }
 
 sig Path {
-    segments: set StreetSegment,
+    // Every path must consist of at least one segment
+    segments: some StreetSegment,
     score: one Score
 }
 
-
-// STREET SEGMENTS
-
+// --- STREET SEGMENTS ---
 
 sig StreetSegment {
     start: one Coordinate,
     end: one Coordinate,
+    // Attributes that change based on user feedback and processing
     var score: one Score,
-    isCyclable: one Bool
+    var isCyclable: one Bool
 }
 
-
-// ENUMS
-
+// --- ENUMERATIONS ---
 
 enum Score { Optimal, Medium, Sufficient, RequiresMaintenance, None }
 \end{lstlisting}
@@ -354,133 +346,115 @@ module predicates
 
 open signatures
 
-
-// SAVE TRIP
-
+// --- SAVE TRIP ---
 
 pred saveTrip[u: RegisteredUser, t: Trip] {
+    // Preconditions
+    u in RegisteredUser
+    all u1: RegisteredUser | t not in u1.trips
 
-	// Preconditions
-	u in RegisteredUser
-	all u1: RegisteredUser | t not in u1.trips
+    // Postconditions
+    u.trips' = u.trips + t
+    u.contributions' = u.contributions + t.contributions
 
-	// Postconditions
-	u.trips' = u.trips + t
-	u.contributions' = u.contributions + t.contributions
+    all u2: RegisteredUser - u | u2.trips' = u2.trips
 
-	all u2: RegisteredUser - u | u2.trips' = u2.trips
+    // Frame conditions
+    (Trip <: madeOf)' = (Trip <: madeOf)
+    (Trip <: contributions)' = (Trip <: contributions)
+    (Trip <: detections)' = (Trip <: detections)
 
-	// Frame conditions
-	(Trip <: madeOf)' = (Trip <: madeOf)
-	(Trip <: contributions)' = (Trip <: contributions)
-	(Trip <: detections)' = (Trip <: detections)
-
-	User' = User
-	Contribution' = Contribution
-	PathGenerate.activePaths' = PathGenerate.activePaths
-	(StreetSegment <: score)' = (StreetSegment <: score)
+    User' = User
+    Contribution' = Contribution
+    PathGenerate.activePaths' = PathGenerate.activePaths
+    (StreetSegment <: score)' = (StreetSegment <: score)
 }
 
-
-// PUBLISH CONTRIBUTION
-
+// --- PUBLISH CONTRIBUTION ---
 
 pred publishContribution[u: RegisteredUser, c: Contribution] {
+    // Preconditions
+    u in RegisteredUser
+    c not in PublishedContribution
+    c.author = u
 
-	// Preconditions
-	u in RegisteredUser
-	c not in PublishedContribution
-	c.author = u
+    // Postconditions
+    PublishedContribution' = PublishedContribution + c
 
-	// Postconditions
-	PublishedContribution' = PublishedContribution + c
+    // User and Author updates
+    (RegisteredUser <: contributions)' = (RegisteredUser <: contributions) + (u -> c)
+    (c.author)' = u
+    some c.(Contribution <: score)'
 
-	// User update
-	(RegisteredUser <: contributions)' =
-		(RegisteredUser <: contributions) + (u -> c)
+    // Frame conditions
+    User' = User
+    Trip' = Trip
+    Information' = Information
 
-	// Contribution definition
-	(c.author)' = u
-	some c.(Contribution <: score)'
-
-	// Frame conditions
-	User' = User
-	Trip' = Trip
-	Information' = Information
-
-	trips' = trips
-	madeOf' = madeOf
-	activePaths' = activePaths
-	weatherData' = weatherData
-	(StreetSegment <: score)' = (StreetSegment <: score)
+    trips' = trips
+    madeOf' = madeOf
+    activePaths' = activePaths
+    weatherData' = weatherData
+    (StreetSegment <: score)' = (StreetSegment <: score)
 }
 
-
-// SAVE CONTRIBUTION (LINKING)
-
+// --- SAVE CONTRIBUTION (LINKING) ---
 
 pred saveContribution[u: RegisteredUser, t: Trip, c: Contribution] {
+    // Preconditions: the contribution must not be already linked
+    all u1: RegisteredUser | c not in u1.contributions
+    all t1: Trip | c not in t1.contributions
 
-	// Preconditions
-	all u1: RegisteredUser | c not in u1.contributions
-	all t1: Trip | c not in t1.contributions
+    // Postconditions: establish the link between contribution, author, and trip
+    c.author' = u
+    t.contributions' = t.contributions + c
 
-	// Postconditions
-	c.author' = u
-	t.contributions' = t.contributions + c
-
-	// Frame conditions
-	User' = User
-	Contribution' = Contribution
-	PathGenerate.activePaths' = PathGenerate.activePaths
-	trips' = trips
+    // Frame conditions
+    User' = User
+    Contribution' = Contribution
+    PathGenerate.activePaths' = PathGenerate.activePaths
+    trips' = trips
 }
 
-
-// CONFIRM DETECTION
-
+// --- CONFIRM DETECTION ---
 
 pred confirmDetection[u: RegisteredUser, t: AutomaticTrip, d: Detection, c: Contribution] {
+    // Preconditions: detection must be unconfirmed and belong to the user's trip
+    all u1: RegisteredUser | c not in u1.contributions
+    all t1: Trip | c not in t1.contributions
+    d in t.detections
+    d.confirmed = False
+    t in u.trips
 
-	// Preconditions
-	all u1: RegisteredUser | c not in u1.contributions
-	all t1: Trip | c not in t1.contributions
-	d in t.detections
-	d.confirmed = False
-	t in u.trips
+    // Postconditions: confirm the detection and save it as a contribution
+    d.confirmed' = True
 
-	// Postconditions
-	d.confirmed' = True
+    c.segment = d.onStreet
+    c.info = d.detectedInfo
+    c.score = d.score
 
-	c.segment = d.onStreet
-	c.info = d.detectedInfo
-	c.score = d.score
+    saveContribution[u, t, c]
 
-	saveContribution[u, t, c]
-
-	// Frame conditions
-	User' = User
+    // Frame conditions
+    User' = User
 }
 
-
-// MERGE CONTRIBUTION
-
+// --- MERGE CONTRIBUTION ---
 
 pred merge[c: Contribution] {
+    // Preconditions: only published contributions are merged into the global map
+    c in PublishedContribution
 
-	// Preconditions
-	c in PublishedContribution
+    // Postconditions: update the segment's score based on the contribution data
+    (c.segment.score)' = c.score
 
-	// Postconditions
-	(c.segment.score)' = c.score
-
-	// Frame conditions
-	User' = User
-	Trip' = Trip
-	Contribution' = Contribution
-	madeOf' = madeOf
-	activePaths' = activePaths
-	PublishedContribution' = PublishedContribution
+    // Frame conditions
+    User' = User
+    Trip' = Trip
+    Contribution' = Contribution
+    madeOf' = madeOf
+    activePaths' = activePaths
+    PublishedContribution' = PublishedContribution
 }
 \end{lstlisting}
 
@@ -496,133 +470,146 @@ module facts
 open signatures
 open predicates
 
-
-// STRUCTURAL CONSISTENCY
-
+// --- STRUCTURAL CONSISTENCY ---
 
 fact StructuralConsistency {
+    // Each Trip belongs to at most one RegisteredUser
+    all t: Trip | lone u: RegisteredUser | t in u.trips
 
-	// Each Trip belongs to at most one RegisteredUser
-	all t: Trip | lone u: RegisteredUser | t in u.trips
-
-	// Each Contribution belongs to at most one Trip
-	all c: Contribution | lone t: Trip | c in t.contributions
+    // Each Contribution belongs to at most one Trip
+    all c: Contribution | lone t: Trip | c in t.contributions
 }
 
-
-// DETECTIONS & INFORMATION CONSISTENCY
-
+// --- DETECTIONS & INFORMATION CONSISTENCY ---
 
 fact detectionConsistency {
-	all t: Trip, d: Detection |
-		d in t.detections implies d in (t.detections)'
+    // Detections associated with a trip persist in the next state
+    all t: Trip, d: Detection |
+        d in t.detections implies d in (t.detections)'
 }
 
 fact detectedInfoConsistency {
-	all i: Information, d: Detection |
-		i in d.detectedInfo implies i in (d.detectedInfo)'
+    // Information linked to a detection persists in the next state
+    all i: Information, d: Detection |
+        i in d.detectedInfo implies i in (d.detectedInfo)'
 }
 
 fact streetConsistency {
-	always all s: StreetSegment, d: Detection |
-		s in d.onStreet implies s in (d.onStreet)'
+    // The street segment associated with a detection remains the same over time
+    always all s: StreetSegment, d: Detection |
+        s in d.onStreet implies s in (d.onStreet)'
 }
 
+fact detectionTripConsistency {
+    // A single detection cannot belong to two different automatic trips
+    always all disj t1, t2: AutomaticTrip | no t1.detections & t2.detections
+}
 
-// AUTHOR CONSISTENCY
-
+// --- AUTHOR CONSISTENCY ---
 
 fact authorConsistency {
-	always all c: Contribution, u: User |
-		c in u.contributions implies c.author = u
+    // If a contribution is in a user's set, that user must be the author
+    always all c: Contribution, u: User |
+        c in u.contributions implies c.author = u
 }
 
 fact AuthorConsistency {
-	always all u: RegisteredUser, t: u.trips, c: t.contributions |
-		c.author = u
+    // The author of a contribution must be the owner of the trip it belongs to
+    always all u: RegisteredUser, t: u.trips, c: t.contributions |
+        c.author = u
 }
 
-
-// TOPOLOGICAL CONSISTENCY
-
+// --- TOPOLOGICAL CONSISTENCY ---
 
 fact TopologicalConsistency {
-	always all t: Trip, c: t.contributions |
-		c.segment in t.madeOf
+    // A contribution must refer to a segment that is part of the original trip
+    always all t: Trip, c: t.contributions |
+        c.segment in t.madeOf
 }
 
-
-// PATH CONSISTENCY
-
+// --- PATH CONSISTENCY ---
 
 fact PathConnectivityAndScore {
+    // Geometric connectivity: segments in a path must be physically connected
+    all p: PathGenerate.activePaths | {
+        #p.segments > 1 implies all s: p.segments |
+            some s2: p.segments - s |
+                (s.end = s2.start) or
+                (s.start = s2.end) or
+                (s.end = s2.end) or
+                (s.start = s2.start)
+    }
 
-	// Segment connectivity
-	all p: PathGenerate.activePaths | {
-		#p.segments > 1 implies all s: p.segments |
-			some s2: p.segments - s |
-				(s.end = s2.start) or
-				(s.start = s2.end) or
-				(s.end = s2.end) or
-				(s.start = s2.start)
-	}
-
-	// Path score aggregation
-	all p: PathGenerate.activePaths | {
-		some p.segments implies p.score = min[p.segments.score]
-	}
+    // Path score is determined by the minimum score among its segments
+    all p: PathGenerate.activePaths | {
+        some p.segments implies p.score = min[p.segments.score]
+    }
 }
 
+fact PathMustBeValid {
+    // Active paths must only consist of cyclable segments
+    always all p: PathGenerate.activePaths | 
+        all s: p.segments | s.isCyclable = True
+}
 
-// USER & HISTORY CONSISTENCY
+fact PathValidityDefinition {
+    // The set of activePaths contains exactly those paths where all segments are cyclable
+    always PathGenerate.activePaths = { p: Path | all s: p.segments | s.isCyclable = True }
+}
 
+// --- USER & HISTORY CONSISTENCY ---
 
 fact ConsistentUsersSet {
-	always (
-		User = User'
-	)
+    // The set of users remains constant over time
+    always (
+        User = User'
+    )
 }
 
 fact ConsistentHistory {
-	always (
-		all u: RegisteredUser | (
-			(u.trips = u.trips')
-			or (some t: Trip | saveTrip[u, t])
-		)
-	)
+    // A user's trip history is preserved unless a new trip is saved
+    always (
+        all u: RegisteredUser | (
+            (u.trips = u.trips')
+            or (some t: Trip | saveTrip[u, t])
+        )
+    )
 }
 
 fact ConsistentContributions {
-	always (
-		all u: RegisteredUser | (
-			(u.contributions = u.contributions')
-			or (some c: Contribution | publishContribution[u, c])
-		)
-	)
+    // A user's contributions are preserved unless a new one is published
+    always (
+        all u: RegisteredUser | (
+            (u.contributions = u.contributions')
+            or (some c: Contribution | publishContribution[u, c])
+        )
+    )
 }
 
-
-// CONTRIBUTION CONSISTENCY
-
+// --- CONTRIBUTION CONSISTENCY ---
 
 fact ConsistentContributionScore {
-	always all c: Contribution |
-		c.score = (c.score)'
+    // The score assigned to a contribution remains constant
+    always all c: Contribution |
+        c.score = (c.score)'
 }
 
 fact ConsistentContributionStreet {
-	always all c: Contribution |
-		c.segment = (c.segment)'
+    // The street segment linked to a contribution remains constant
+    always all c: Contribution |
+        c.segment = (c.segment)'
 }
 
 fact suitabilityLimitation {
-	all c: Contribution, i1, i2: BikeSuitability |
-		(i1 in c.info and i2 != i1) implies i2 not in c.info
+    // A contribution cannot contain multiple distinct bike suitability updates
+    all c: Contribution, i1, i2: BikeSuitability |
+        (i1 in c.info and i2 != i1) implies i2 not in c.info
 }
 
 fact publishedConsistency {
-	always all c: PublishedContribution |
-		c' in PublishedContribution
+    // Once a contribution is published, it remains published in subsequent states
+    always all c: PublishedContribution |
+        c in PublishedContribution'
 }
 \end{lstlisting}
 
@@ -641,18 +628,17 @@ open signatures
 open facts
 open predicates
 
+// --- 1. CONFIGURATION & INITIAL STATE ---
 
-// 1. CONFIGURATION & INITIAL STATE
-
-
-// Static topology constraints
+// World topology constraints (minimum requirements for instance generation)
 fact WorldTopology {
     #StreetSegment >= 2
     all s: StreetSegment | some s.start and some s.end
 }
 
-// Initial state (time 0)
+// Definition of the initial state at time T=0
 pred initialize {
+    // No users or data present at startup
     no RegisteredUser
     no UnregisteredUser
 
@@ -662,14 +648,13 @@ pred initialize {
 
     no PathGenerate.activePaths
 
+    // All segments start with an optimal score
     all s: StreetSegment | s.score = Optimal
 }
 
+// --- 2. TRANSITIONS & SYSTEM EVOLUTION ---
 
-// 2. DO-NOTHING TRANSITION & SYSTEM EVOLUTION
-
-
-// Idle transition
+// "Idle" transition: the system state remains unchanged
 pred doNothing {
     RegisteredUser' = RegisteredUser
     UnregisteredUser' = UnregisteredUser
@@ -687,7 +672,7 @@ pred doNothing {
     weatherData' = weatherData
 }
 
-// System evolution
+// Dynamic evolution of the system over time
 pred System {
     initialize
     and
@@ -702,68 +687,68 @@ pred System {
     )
 }
 
+// --- 3. TEST SCENARIO: SAVE TRIP + CONTRIBUTION ---
 
-// 3. TEST SCENARIO: SAVE TRIP + CONTRIBUTION
-
-
+// Verifies the workflow: Save Trip -> Publication -> Data Merge
 pred TestScenario {
-
     some u: RegisteredUser,
          t: Trip,
          c: Contribution,
          s: StreetSegment | {
 
-        // Static setup
+        // Static data setup for the test
         s.score = Optimal
         c.score = RequiresMaintenance
 
-        // Initial state
+        // Initial test state
         no u.trips
         no PublishedContribution & c
 
-        // Save trip
+        // Transition 1: User saves a manual trip
         saveTrip[u, t]
         s in t.madeOf'
         t in ManualTrip
 
-        // Publish contribution
+        // Transition 2: Publication of the contribution related to segment s
         after publishContribution[u, c]
         c.segment = s
         c in t.contributions
 
-        // Merge
+        // Transition 3: Integration of feedback into the system (Merge)
         after after merge[c]
     }
 }
 
+// Command to verify the consistency of the test scenario
+run TestScenario for 4 but 4 Int, 4 seq
 
-// 4. TEST SCENARIO: DETECTION CONFIRMATION
+// --- 4. TEST SCENARIO: DETECTION CONFIRMATION ---
 
-
+// Verifies the transformation of an automatic Detection into a user contribution
 pred TestDetectionConfirmation {
-
     some u: RegisteredUser,
          t: AutomaticTrip,
          d: Detection,
          s: StreetSegment,
          c: Contribution | {
 
-        // Static setup
+        // Static links between entities
         d.onStreet = s
         d in t.detections
         t in u.trips
 
+        // Contribution must be initially orphan
         no c.author
         all existingT: Trip | c not in existingT.contributions
 
-        // Initial state
+        // Initial state: detection not yet confirmed
         d.confirmed = False
         no t.contributions
 
-        // Confirm detection
+        // Transition: User confirms the automatic detection
         confirmDetection[u, t, d, c]
 
-        // Post-condition
+        // Verify post-condition in the next state
         after {
             d.confirmed = True
             one newC: Contribution | {
@@ -776,7 +761,56 @@ pred TestDetectionConfirmation {
     }
 }
 
-run TestDetectionConfirmation for 3 but 3 Contribution, 3 seq
+// run TestDetectionConfirmation for 2 but 2 Contribution, 2 seq
+
+// --- 5. TEST SCENARIO: PATH INVALIDATION (SAFETY) ---
+
+// Demonstrates that a segment failure only invalidates paths containing it
+pred PathBreakScenario {
+    some pAffected, pSafe: Path, s: StreetSegment | {
+        
+        // --- STRUCTURAL SETUP ---
+        pAffected != pSafe           // Paths must be distinct
+        
+        s in pAffected.segments      // s is critical only for pAffected
+        s not in pSafe.segments      // pSafe does not depend on s
+        
+        // Intersection constraint: paths share another segment (sShared)
+        some sShared: StreetSegment | {
+            sShared in pAffected.segments
+            sShared in pSafe.segments
+        }
+
+        #pAffected.segments > 1      
+        #pSafe.segments > 1
+        
+        // --- TIME 0: Healthy operational state ---
+        pAffected in PathGenerate.activePaths
+        pSafe in PathGenerate.activePaths
+        
+        s.isCyclable = True
+        all seg: (pAffected.segments + pSafe.segments) | seg.isCyclable = True
+
+        // --- TRANSITION: Segment failure ---
+        s.isCyclable' = False
+
+        // Frame condition: the only change is the state of s
+        all s2: StreetSegment - s | s2.isCyclable' = s2.isCyclable
+
+        // --- TIME 1: Verify path independence ---
+        after {
+            // pAffected is removed because s is no longer cyclable
+            pAffected not in PathGenerate.activePaths
+            
+            // pSafe remains active as it does not contain s
+            pSafe in PathGenerate.activePaths
+            
+            s.isCyclable = False
+        }
+    }
+}
+
+// run PathBreakScenario for 4 but 2 seq, 8 StreetSegment, 8 Coordinate
 \end{lstlisting}
 
 \section{Validation through the Model}

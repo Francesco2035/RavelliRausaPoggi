@@ -135,7 +135,7 @@ BBP provides the following core functionalities:
 
         %\textbf{[SP\csp]} The system detects that the user is biking based on detected speed.
 
-        \textbf{[SP\csp]} The system reconstructs the path followed by the user from acquired GPS data and shows it in the user's trip history.
+        \textbf{[SP\csp]} The system reconstructs the path followed by the user from acquired GPS data and shows it to the user.
         
         %\textbf{[SP\csp]} The system identifies potential potholes or problems by analyzing accelerometer and gyroscope data.
         
@@ -156,21 +156,26 @@ BBP provides the following core functionalities:
         %\textbf{[SP\csp]} The system calculates a path's score based on status and effectiveness.
 
         %\textbf{[SP\csp]} The system identifies bike paths between specified origin and destination.
-
+        
         \textbf{[SP\csp]} The system shows identified paths on a map ordered by score.
 
         \textbf{[SP\csp]} The system shows the user the statistics of their stored trips.
 
         %\textbf{[SP\csp]} The system applies prevalence logic to determine the aggregated status of a path.
 
-        \textbf{[SP\csp]} The system sends notifications to users about relevant changes. %questa è in più direi, quindi se la "implementiamo"
 
         \textbf{[SP\csp]} The system displays the requested information.
 
 
+\section{Definitions, Acronyms, Abbreviations}
+\label{sec:definition_acronyms_abbreviations}
 
+\subsection{Definitions} \begin{description} \item[BBP (Best Bike Paths)] The collaborative platform, subject of this document, designed to collect, analyze, and share data about cycling routes. \item[Registered User] A user who has created a profile on the platform and can record trips, insert data, and manage their profile. \item[Unregistered User] A user who can only consult information and view maps of available bike paths. \item[Path Status] A standardized rating of a path's condition (e.g., optimal, medium, sufficient, requires maintenance). \item[Trip] The recording of a single bicycle journey, which includes GPS data, sensor readings, and statistics. 
+\item[StreetSegment] The fundamental unit of the system, representing a stretch of road between two intersections or junctions. Each StreetSegment contains no intersections within it and constitutes the most atomic level of the road network.
 
-    \subsection{Definitions} \begin{description} \item[BBP (Best Bike Paths)] The collaborative platform, subject of this document, designed to collect, analyze, and share data about cycling routes. \item[Registered User] A user who has created a profile on the platform and can record trips, insert data, and manage their profile. \item[Unregistered User] A user who can only consult information and view maps of available bike paths. \item[Path Status] A standardized rating of a path's condition (e.g., optimal, medium, sufficient, requires maintenance). \item[Trip] The recording of a single bicycle journey, which includes GPS data, sensor readings, and statistics. \end{description}
+\item[Path / BikePath] A sequence of connected StreetSegments selected to ensure safe and comfortable conditions for cyclists. A Path is considered suitable when the motor vehicle speed limit is reasonable for cycling use or when a dedicated bike lane is available.
+
+\end{description}
 \subsection{Acronyms} \begin{description} \item[BBP] Best Bike Paths \item[G] Goal \item[WP] World Phenomena \item[SP] Shared Phenomena\item[GPS] Global Positioning System \item[API] Application Programming Interface \item[DB] Data Base \end{description}
 \subsection{Abbreviations} \begin{description} \item[Id] Identifier \end{description}
 
@@ -201,7 +206,7 @@ BBP provides the following core functionalities:
 \label{sec:reference_documents}
 \begin{itemize}
     \item{[\cbib]} Di Nitto, Rossi, Camilli, \textit{"A.Y. 2025-2026 Software Engineering 2 Requirement Engineering and Design Project"}, 2025.
-    \item{[\cbib]} ISO/IEC/IEEE 29148:2018, \textit{"Systems and Software Engineering — Life Cycle Processes — Requirements Engineering," International Organization for Standardization, International Electrotechnical Commission, and Institute of Electrical and Electronics Engineers}, 2018.
+    \item{[\cbib]} Matteo Camilli, Elisabetta Di Nitto, Alfonso Fuggetta, Alessandro Margara, Matteo G. Rossi, Damian A. Tamburri, \textit{Software Engineering: a Structured Journey from Inception to Delivery}, Bocconi University Press, 2025, ISBN: 9791280623508
 \end{itemize}
 
 \section{Document Structure}
