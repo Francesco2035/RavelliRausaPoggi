@@ -5,7 +5,26 @@
     \item \textbf{Overleaf}: LaTeX collaborative writing.
     \item \textbf{Lucid Chart}: diagrams.
     \item \textbf{Alloy}: formal analysis for the system.
-    \item \textbf{ChatGPT}: Used as a writing support tool for text refinement and linguistic revision. 
-No requirements or design decisions were automatically generated without human validation.
+    \item \textbf{ChatGPT}: Used to assist in translating author-defined concepts from Italian to English 
+and in refining the textual presentation of the document. 
+Additional support was provided for \LaTeX{} and Alloy syntax clarification. 
+The content and technical decisions remain entirely the responsibility of the authors.
+Some notable prompts used were:
+\begin{itemize}
+    \item How do i define the fact that the score of SreetSegments only changes by doing merge[c]?
+        It answered by saying that instead of doing this fact: always (all s: StreetSegment | s.score' = s.score)
+        I should write the frame condition in all predicates but the merge which gave the intended result.
+    \item   Contribution goes from the subset published to a normal contribution in the following state, why?
+        It answered that I forgot to state that the set of published contributions doesn't change outside of the
+        predicate PublishContribution[u,c].
+    
+    \item "Produce an English definition paragraph for \texttt{StreetSegment}. 
+    A \texttt{StreetSegment} is the atomic entity of the system, it is a road segment between two intersections without internal junctions." 
+    The model answered with: " The fundamental unit of the system, representing a stretch of road between two intersections or junctions. Each StreetSegment contains no intersections within it and constitutes the most atomic level of the road network."\ref{sec:definition_acronyms_abbreviations}
+
+\end{itemize} 
+    
+    
+\footnote{The alloy prompts and answers were paraphrased and translated from Italian for the sake of simplicity.}
 
 \end{itemize}
