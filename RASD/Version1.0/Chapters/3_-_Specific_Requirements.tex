@@ -4,8 +4,131 @@
 \subsection{User Interfaces}
 \label{subsec:User_interfaces}
 
+This section presents the main screens of the application through conceptual mock-ups, illustrating how users can navigate maps, manage their profiles, record trips, confirm detections, and insert manual reports. The goal is to provide a clear and intuitive overview of the graphical layout and interaction flows that support both registered and unregistered users in accessing the platform’s services. In the following mock-ups, we showcase the functionalities available to a registered user, as this allows us to present a broader and more complete view of the application’s capabilities.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.4\linewidth]{RASD/Version1.0/images/Interfaces/Sign_In.png}
+        \caption{Log in Interface} 
+        \label{fig:log_in_interface}
+    \end{center}
+\end{figure}
+
+Figure 3.1 represents the initial interface that any user encounters upon opening the application. From this screen, the user may choose to log in, sign up, or continue without creating an account, accessing a limited set of functionalities. 
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.4\linewidth]{RASD/Version1.0/images/Interfaces/Map_1.png}
+        \caption{Map Interface} 
+        \label{fig:Map_interface}
+    \end{center}
+\end{figure}
+
+Figure 3.2 shows the map interface, which is displayed immediately after signing in or by selecting the map icon in the bottom navigation bar. At the top of the screen, a search bar allows the user to specify an origin and a destination in order to look for suitable cycling paths. Just below it, the suggested paths are presented, where the stars indicate the overall score of each path and the colored circle on the left represents the quality of the road. The map provides an overview of the available routes and serves as the central entry point for consulting path information and exploring the surrounding area.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.4\linewidth]{RASD/Version1.0/images/Interfaces/Profile.png}
+        \caption{Profile interface} 
+        \label{fig:profile_interface}
+    \end{center}
+\end{figure}
+
+Figure 3.3 illustrates the profile interface, which can be accessed by selecting the human-shaped icon in the bottom navigation bar. The \textit{Trip History} section displays all the user's completed trips and allows them to publish any unpublished paths as well as view detailed statistics for each ride. The \textit{Your Progress} section summarizes the user's overall activity, including metrics such as the total number of completed trips and the cumulative distance traveled. In the \textit{Preferences} section, the user can configure their preferred path qualities, enabling the system to provide personalized route suggestions. Finally, the \textit{Settings} section allows the user to modify their account information, such as changing their profile picture or deleting their account.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.4\linewidth]{RASD/Version1.0/images/Interfaces/Automatic 1.png}
+        \caption{Automatic trip interface} 
+        \label{fig:automatic_interface}
+    \end{center}
+\end{figure}
+
+Figure 3.4 shows the interface displayed after pressing the start button in the bottom navigation bar, which initiates the automatic trip detection mode. During this mode, the system records the user's movement and collects sensor data to reconstruct the traveled path. The trip can be terminated at any time either by pressing the \textit{Stop} button on the screen or by selecting the same bottom navigation button, which now functions as a stop control. While the trip is being recorded, the user may continue to navigate and use the application freely without interrupting the ongoing detection process.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.4\linewidth]{RASD/Version1.0/images/Interfaces/Automatic 2.png}
+        \caption{Detection confirmation interface} 
+        \label{fig:automatic_detection}
+    \end{center}
+\end{figure}
+
+Figure 3.5 shows the interface displayed after stopping the automatic trip detection illustrated in Figure 3.4. In this screen, the user can review the statistics of the completed trip and examine the automatically detected events. The lower section allows the user to add new detections or modify the ones suggested by the system. To precisely indicate where a detection occurred, the user can drag the pin on the map, positioning it on the exact road segment where the event took place.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.4\linewidth]{RASD/Version1.0/images/Interfaces/Manual 1.png}
+        \caption{Manual trip interface} 
+        \label{fig:manual_interface}
+    \end{center}
+\end{figure}
+
+Figure 3.6 can be accessed by pressing the ``+'' icon in the bottom navigation bar, allowing the user to create a trip manually. In this interface, the user may build a route by entering the names of the streets or by selecting their beginning and end points by clicking directly on the map and choosing an existing path between the two points. The blue lines represent the selected street segments, while the pins indicate any contributions associated with the trip. Once the trip has been created, the user may save it in their trip history by pressing the \textit{Save} button, and they may also choose to publish it immediately through the popup that appears after saving. Alternatively, the user can publish the trip directly without saving it in their history by pressing the \textit{Post} button.
 
 
+\subsection{Hardware Interfaces}
+
+The system shall ensure full compatibility with the hardware components involved in the interaction between users' devices and the platform. The following requirements apply:
+
+\subsubsection*{User Devices}
+\begin{itemize}
+    \item The platform shall support access from a wide range of commonly used device such as tablet sand smartphones. %mi sembra follia mettere anche tablet ma mi sembrava restrittivo dire solo smartphones 
+    
+    \item The platform shall be fully usable across different screen sizes and resolutions, ensuring responsiveness and readability regardless of device type.
+
+    \item User devices shall include sufficient storage and processing capabilities to runt he mobile application, including support for caching data and executing client-side scripts.
+
+    \item For devices using automatic trip detection or sensor-based functionalities, the system shall interface with hardware components such as \textbf{GPS receivers}, \textbf{accelerometers}, and \textbf{gyroscopes}. These components must be accessible to the application for acquiring motion data, trip-related information, and geolocation.% non so se ha più senso in software o in hardware ma non metterei in entrambi
+    
+\end{itemize}
+
+
+\subsection{Software Interfaces}
+
+The system is designed as a mobile application, capable of performing all its core functionalities without relying on essential third-party software. Nevertheless, the system shall comply with the following software interface requirements:
+
+\begin{itemize}
+    \item The system shall function correctly across the most widely adopted operating systems, including, but not limited to, \textbf{Android}, and \textbf{iOS}.
+    
+    \item The system shall interface with geolocation and mapping services to retrieve, compute, and display cycling routes. These services include GPS modules, map-rendering libraries, and geocoding/route-search components.
+    
+    \item The system shall interface with external meteorological information providers to retrieve weather conditions relevant to trips and route safety evaluations.
+    
+    \item The system shall interact with mobile device sensors, including accelerometer and gyroscope, to collect motion-related data supporting the automatic detection of obstacles and road conditions.
+    
+    \item No additional software installations or configurations shall be required on the user's device, aside from using the official mobile application.
+\end{itemize}
+
+\subsection{Communication Interfaces}
+
+The system shall support reliable and secure communication mechanisms enabling interaction between client devices, backend services, and external data providers. The following requirements apply:
+
+\begin{itemize}
+    \item The system shall operate over standard Internet connections, including both wired and wireless networks such as \textbf{Ethernet}, \textbf{Wi-Fi}, and \textbf{mobile data}.
+    
+    \item All communication between the client and the server shall be secured through \textbf{encrypted protocols} (e.g., TLS/SSL) to protect sensitive information such as user credentials, personal data, recorded trips, and sensor-based contributions.
+    
+    \item The system shall utilize widely adopted \textbf{web communication protocols}, primarily \textbf{HTTPS}, to ensure secure and reliable data transmission between user devices and the backend.
+    
+    \item The system shall support communication with external services, including meteorological data providers and geolocation/map services, through standard \textbf{HTTP/HTTPS-based APIs}.
+    
+    \item No additional software installations or communication packages shall be required on the user’s device to enable proper communication with the platform.
+    
+    \item The system shall minimize communication latency by adhering to industry-standard response times ensuring a smooth and responsive user experience.
+\end{itemize}
+
+
+\subsubsection*{Hosting Infrastructure}
+\begin{itemize}
+    \item The system shall be deployed on a hosting infrastructure capable of supporting simultaneous access by multiple users with minimal latency.
+    
+    \item The hosting environment shall provide sufficient computational resources for processing real-time map data, aggregating user contributions, and executing background operations.
+
+    \item The infrastructure shall include adequate storage capabilities to manage user profiles, trips, sensor data, and historical records of contributions.
+
+    \item The hosting environment shall be scalable, allowing the system to accommodate increasing traffic, data volume, and computational demands over time while preserving service availability and performance.
+\end{itemize}
 
 
 
@@ -628,3 +751,149 @@
 \noindent\textit{Remark.}
 Since the behaviour of this use case is almost identical to \hyperref[sec:uc_automatic_insertion]{\uline{UC.~Automatic Insertion}},
 apart from the highlighted path on the map and the absence of route recalculation, no dedicated activity diagram is provided.
+
+
+
+\subsection{Mapping On Requirements}
+\label{subsec:mapping_on_requirements}
+
+\newcounter{row}
+\setcounter{row}{1}
+\newcommand{\crow} {\therow\stepcounter{row}}
+
+\begin{longtable}{
+    |>{\centering\arraybackslash}p{2cm}
+    |>{\centering\arraybackslash}p{2.5cm}
+    |>{\centering\arraybackslash}p{5cm}
+    |>{\centering\arraybackslash}p{3.5cm}
+    |>{\centering\arraybackslash}p{2.5cm}|
+}
+    \hline
+    \textbf{Row ID} & \textbf{Goal ID} & \textbf{Req ID} & \textbf{DA ID} & \textbf{UC ID} \\ \hline
+    \endfirsthead
+    \hline
+    \textbf{Row ID} & \textbf{Goal ID} & \textbf{Req ID} & \textbf{DA ID} & \textbf{UC ID} \\ \hline
+    \endhead
+    \hline
+    \endfoot
+    \hline
+    \endlastfoot
+
+    \crow & G1 & R1, R2, R3, R4 & DA3, DA4, DA5 & UC1, UC2, UC3, UC4, UC5 \\ \hline
+    \crow & G2 & R2, from R5 to R13, R35, R36 & DA1, DA2, DA3, DA6, DA7, DA8, DA9, DA12, & from UC10 to UC14 \\ \hline
+    \crow & G3 & R7, R8, R10, R15, R35, R36 & DA1, DA2, DA6, DA7, DA9, DA10, DA11 & UC6, UC13 \\ \hline
+    \crow & G4 & R2, R10, R11, R12, R13 & DA3, DA12, DA13 & UC10, UC13 \\ \hline
+    \crow & G5 & R2, R5, R6, R7, R8, R9, R10, R11, R35, R36 & DA3, DA6, DA7, DA9 DA10, DA11, & UC11, UC12, UC14 \\ \hline
+    \crow & G6 & R2, R14, from R16 to R23 & DA3 &  UC7 \\ \hline
+    \crow & G7 & from R24 to R34 & DA1, DA2, DA3, DA11 & UC8, UC9 \\ \hline
+    \crow & G8 & R19, R20, R21, R22, R23, R33, R34 & DA1, DA2, DA14, DA15 & UC7\\ %\hline
+    
+    %\crow & G9 & R19, R21, R33, R34 & DA1, DA8, DA9, DA10, DA15, DA16 & UC7, UC10, UC11, UC14 \\ \hline
+    %\crow & G10 & R20, R21, R23, R24--R30, R33, R34 & DA1, DA2, DA8, DA9, DA10, DA12, DA15, DA16 & UC7, UC8, UC9, UC10, UC11, UC14 
+
+\label{tab:traceability}
+\end{longtable}
+
+
+
+
+\section{Performance Requirements}
+
+The system gives real time information to its users, so it is critical that it provides a smooth and responsive user experience on mobile devices under normal operating conditions therefore:
+
+\begin{itemize}
+    \item The system shall provide a \textbf{responsive user interface}, ensuring that standard user interactions (e.g., navigation between screens, map panning and zooming, profile access) are completed within \textbf{0.5 seconds} under normal network conditions.
+    
+    \item Map rendering and updates, including the visualization of bike paths and aggregated contributions, shall be completed within \textbf{2 seconds} after the user changes the visible map area or performs a path search.
+    
+    \item The system shall support \textbf{real-time trip recording}, continuously collecting GPS and sensor data without causing noticeable delays, application freezes, or data loss during normal usage.
+    
+    \item Sensor data acquisition (e.g., GPS, accelerometer, gyroscope) shall not exceed acceptable latency thresholds that could compromise the accuracy of recorded trips or obstacle detection.
+    
+    \item The system shall be capable of handling \textbf{concurrent access by 15000 users} without degradation of core functionalities, such as map visualization, path search, and trip recording.
+    
+    \item Data synchronization between the mobile application and the backend server shall occur within a reasonable time frame, ensuring that newly recorded trips and contributions are available to the user within \textbf{30 seconds} after successful upload.
+    
+    \item The system shall ensure acceptable performance under varying network conditions, gracefully handling temporary connectivity issues by caching essential data locally and synchronizing it once the connection is restored.
+\end{itemize}
+
+\section{Design Constraints}
+
+\subsubsection{3.4.1 Standards Compliance}
+\begin{itemize}
+    \item The system shall be developed in accordance with the guidelines and best practices for native mobile applications provided by \textbf{Android} and \textbf{iOS} platforms, including the official Android Developer Guidelines and Apple Human Interface Guidelines.
+    
+    \item The system shall comply with the \textbf{ISO/IEC/IEEE 29148:2018} standard for requirements engineering, ensuring consistency and traceability between requirements and design decisions.
+    
+    \item All data exchanged between the mobile application and backend services shall use secure communication protocols compliant with \textbf{HTTPS} and \textbf{TLS} standards.
+    
+    \item The system shall follow recognized \textbf{mobile security best practices}, including secure credential handling, encrypted local storage where required, and protection against common vulnerabilities such as unauthorized data access.
+    
+    \item The system shall adhere to applicable \textbf{data protection and privacy regulations}, including the \textbf{GDPR}, ensuring transparency in the collection, storage, and processing of personal and location-based data.
+    
+    \item The system shall comply with standard accessibility guidelines for mobile applications, such as the \textbf{WCAG 2.1} principles where applicable, to ensure usability for users with different abilities.
+\end{itemize}
+
+\subsubsection{3.4.2 Hardware Limitations}
+\begin{itemize}
+    \item The system shall operate within the hardware constraints typical of mobile devices, including limited CPU resources, memory, storage capacity, and battery life.
+    
+    \item The application shall be optimized to function correctly on devices with heterogeneous hardware configurations, ensuring acceptable performance on both high-end and mid-range smartphones.
+    
+    \item Continuous use of hardware components such as \textbf{GPS}, \textbf{accelerometer}, and \textbf{gyroscope} shall be managed efficiently to minimize battery consumption and prevent excessive resource usage.
+    
+    \item The system shall handle cases in which required hardware components are unavailable, disabled or denied by the user by providing appropriate feedback and gracefully degrading affected functionalities.
+\end{itemize}
+
+
+\section{Software System Attributes}
+
+\subsubsection{3.5.1 Reliability}
+\begin{itemize}
+    \item The system shall ensure correct and consistent behavior during normal operation, minimizing unexpected crashes or data loss.
+    
+    \item The system shall preserve recorded trip data and user contributions in the presence of temporary failures, such as application restarts or network interruptions.
+    
+    \item The system shall detect and handle runtime errors, providing informative feedback to the user when an operation cannot be completed.
+\end{itemize}
+
+\subsubsection{3.5.2 Availability}
+\begin{itemize}
+    \item The system shall be available for use whenever the mobile device is operational and has network connectivity.
+    
+    \item Core functionalities such as trip recording and data visualization shall remain usable even during temporary backend unavailability, relying on local storage and deferred synchronization.
+    
+    \item The system shall support background execution, where permitted by the operating system, to ensure continuity of trip recording.
+\end{itemize}
+
+\subsubsection{3.5.3 Security}
+\begin{itemize}
+    \item The system shall protect user data by enforcing authentication mechanisms and secure session management.
+    
+    \item Sensitive information, including credentials and personal data, shall be transmitted exclusively through encrypted channels using HTTPS and TLS.
+    
+    \item The system shall restrict access to user-specific data, ensuring that each user can only view and modify their own information.
+    
+    \item The system shall request explicit user consent before accessing sensitive hardware components, such as GPS and motion sensors.
+\end{itemize}
+
+\subsubsection{3.5.4 Maintainability}
+\begin{itemize}
+    \item The system shall be designed following modular and layered architectural principles to facilitate maintenance and future enhancements.
+    
+    \item The codebase shall be documented and structured to support debugging, testing, and incremental updates.
+    
+    \item The system shall allow updates and bug fixes to be deployed without requiring changes to user data or system reconfiguration.
+\end{itemize}
+
+\subsubsection{3.5.5 Portability}
+\begin{itemize}
+    \item The system shall be portable across the supported mobile platforms, namely Android and iOS.
+    
+    \item Platform-specific components shall be isolated to minimize the effort required to adapt the application to different operating system versions.
+    
+    \item The system shall support future migration to additional mobile platforms with limited changes to the core application logic.
+\end{itemize}
+
+
+

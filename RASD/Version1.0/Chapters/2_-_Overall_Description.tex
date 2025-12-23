@@ -3,7 +3,7 @@
 
 \subsection{Scenarios}
 \label{subsec:scenarios}
-AGGIUNGERE SCENARIO DI QUANDO UN UTENTE SI SALVA UN MANUAL REPORT\\
+%AGGIUNGERE SCENARIO DI QUANDO UN UTENTE SI SALVA UN MANUAL REPORT\\
 
 \item \textbf{1st Scenario: User Registration and Profile Management}\\
 Elena Rossi, an avid cyclist and member of a local biking association, decides to join the BBP platform to keep track of her cycling activity and share information with other bikers. 
@@ -11,14 +11,14 @@ Upon opening the application, she selects the \textit{Sign Up} option. BBP promp
 
 \item \textbf{2nd Scenario: Recording and Viewing a Trip with Statistics}\\
 Fausto Coppi is training for his next Tour. Fausto decides to record his rides using BBP. Before starting, he opens the app and presses \textit{Start Trip Recording}. 
-During the ride, the app collects GPS data to track his route and speed and possibly to interrupt the trip recording automatically if the user stops to rest to resume the recording when he continues with his trip. Once he arrives at his destination, he presses \textit{Stop}. The system automatically saves his trip and calculates key statistics: total distance, average speed, and travel time.  Fausto receives an automatic summary of the detected path and potential obstacles identified by the sensors. He notices that BBP has mistakenly flagged a bump as a pothole, so he corrects the information before confirming the path. Once validated, the path is saved in his account.
+During the ride, the app collects GPS data to track his route and speed. Once he arrives at his destination, he presses \textit{Stop}. The system automatically saves his trip and calculates key statistics: total distance, average speed, and travel time.  Fausto receives an automatic summary of the detected path and potential obstacles identified by the sensors. He notices that BBP has mistakenly flagged a bump as a pothole, so he corrects the information before confirming the path. Once validated, the path is saved in his account.
 Fausto later accesses his trip history, where he can review all his recorded rides, compare performances, and track his progress over time.
 
 \item \textbf{3rd Scenario: Manual Insertion of Path Information}\\
 During one of her daily rides, Federica Conti—an environmental engineering student and urban cyclist—remembers that a particular area of the city has no documented cycling paths on BBP’s map. Curious and motivated to improve the platform’s coverage, she decides to explore the zone herself.
-While riding through the neighborhood, Federica discovers a newly built cycling lane that is not yet available on BBP. Wanting to record it before she forgets, she opens the \textit{Add Contribution section} and manually inserts all the relevant details: the street names, total distance, surface quality, and current condition (e.g., Optimal). She also reports a minor obstacle—a small pothole near a crossroad.
+While riding through the neighborhood, Federica discovers a newly built cycling lane that is not yet available on BBP. Wanting to record it before she forgets, she opens the \textit{Manual insertion section} and manually inserts all the relevant details: the street names, total distance, surface quality, and current condition (e.g., Optimal). She also reports a minor obstacle: a small pothole near a crossroad.
 However, due to the lack of internet connection in that area, she is unable to upload the contribution immediately. Instead, BBP’s local storage feature allows her to save the path as a local draft associated with her account.
-Once she returns home and reconnects to the internet, the application automatically synchronizes the previously saved contribution with her BBP account. After reviewing the details one more time, Federica decides to make the path public. The system then updates the platform, publishing the new cycling lane for all users to see.
+Once she returns home and reconnects to the internet, the application automatically synchronizes the previously saved trip with her BBP account. After reviewing the details one more time, Federica decides to make the path public. The system then updates the platform, publishing the new cycling lane for all users to see.
 
 
 \item \textbf{4th Scenario: Publishing a Recently Completed Path}\\
@@ -33,7 +33,7 @@ He clicks \textit{Publish}, and BBP processes the data, making it available in t
 
 \item \textbf{6th Scenario: Consulting and Choosing a Path (Registered User)}\\
 Francesco Leone, a registered cyclist who commutes daily by bike, plans a weekend trip across the city. He logs into BBP and specifies his origin and destination. 
-The system searches the database for suitable routes and displays multiple options on the map, sorted by their score—considering factors such as safety, condition, and efficiency. 
+The system searches the database for suitable routes and displays multiple options on the map sorted by their score, considering factors such as safety, condition, and efficiency. 
 Since Francesco’s profile indicates a preference for smoother surfaces and minimal traffic, BBP’s recommendation system automatically prioritizes such routes in the results. 
 After reviewing the suggested paths, Francesco selects one and saves it as his chosen itinerary for the day.
 
@@ -54,30 +54,42 @@ By considering both the number of confirmations and the recency of the available
 
 \begin{figure}[H]
     \begin{center}
-        \includegraphics[width=0.9\linewidth]{RASD/Version1.0/images/Domain class diagram.png}
+        \includegraphics[width=1\linewidth]{RASD/Version1.0/images/Domain class diagram_1.png}
         \caption{Domain-Level Class Diagram.}
         \label{fig:domain_level_class_diagrams}
     \end{center}
 \end{figure}
 
-The entities interacting with the system are modeled through a hierarchical user structure in order to capture the capabilities and permissions required by the application. At the top level, the abstract User class generalizes any individual who accesses the application, whether simply browsing the map and available paths or actively contributing new information. In particular, the \textit{RegisteredUser} class extends User and enables all advanced features such as recording trips, confirming detections, and publishing contributions, while \textit{UnregisteredUser} supports basic navigation and map viewing functions.
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=0.85\linewidth]{RASD/Version1.0/images/Domain class diagram_2.png}
+        \caption{Domain-Level Class Diagram.}
+        \label{fig:domain_level_class_diagrams}
+    \end{center}
+\end{figure}
 
 
-The central concept of the application is the \textit{Contribution}, representing any information about the cycling network produced by a user or inferred automatically from sensor data.
-A contribution is always associated with a Path, and describes events or obstacles that affect that route, in case of an automatic recording contributions can also include statistics about the trip itself. Contributions can be published directly by registered users (manual contributions), or generated via the confirmation of automatic detections performed during a trip. Each contribution updates the set of facts associated with a path. The publication mechanism allows users to decide when their contributions become visible to all map viewers and impact the quality and usability scoring of each path segment.
+The entities interacting with the system are organized around a hierarchical user structure that reflects the different capabilities exposed by the application. At the top, the abstract \textit{User} class generalizes every individual accessing the platform, while \textit{RegisteredUser} extends it with attributes such as \texttt{userID}, \texttt{email}, \texttt{password}, \texttt{name}, and \texttt{surname}, enabling trip recording, contribution management, and profile customization. \textit{UnregisteredUser}, still a specialization of \textit{User}, represents visitors who can browse the map and search paths without owning trips or publishing contributions; both types of users interact with the map-based exploration of the cycling network, but only registered users are associated with a history of trips through the \textit{Trip} entity.
 
+​
 
-The \textit{Path} entity models the infrastructure of the cycling network, comprising static segments that connect origins and destinations. Each path aggregates multiple pieces of Information—an abstract class that generalizes the different kinds of facts and events reported about the network. Its concrete subclasses include \textit{Warning, Event, Obstacle, Animal, and Roadwork}, each expressing specific types of phenomena detected or reported. The composition between path and information structures a dynamic collective history, while an explicit score attribute summarizes overall path safety or comfort, based on contributions and validations received.
+The core dynamic element of the model is the \textit{Trip} class, which represents a cycling session performed by a registered user and identified by \texttt{tripId}. Trips are specialized into \textit{ManualTrip} and \textit{AutomaticTrip}, depending on whether they are manually specified or recorded through sensors, with \textit{AutomaticTrip} storing temporal and quantitative data such as \texttt{startTime}, \texttt{endTime}, \texttt{distance}, \texttt{avgTripSpeed}, \texttt{maxSpeed}, \texttt{elevation}, and an optional \texttt{weatherSummary}, and being associated with \textit{Sensors} that provide GPS and motion readings. Each trip is mapped onto the infrastructure via one or more \textit{StreetSegment} instances, modeling individual pieces of road between intersections, and for each traversed street segment the trip can generate at most one associated \textit{Contribution}, resulting in a trip-level collection of contributions, each focusing on a single street segment crossed during the ride.
 
+​
 
-The \textit{Trip} entity represents a specific cycling session recorded by a registered user. Each trip is associated with the user who performed it, stores basic data such as the date and distance, and can be complemented by additional statistical summaries (via the Statistic class) and meteorological data. Statistics are derived from raw \textit{SensorData} sampled during the ride, allowing the application to analyze detailed route conditions, travel patterns, and support more accurate detections of issues.
+The \textit{Path} class models higher-level routes composed of multiple \textit{StreetSegment} entities, and is characterized by attributes such as \texttt{pathId}, \texttt{length}, and \texttt{avgScore}. A street segment is defined through \texttt{name}, its endpoints \texttt{startLocation} and \texttt{endLocation} of type \textit{Coordinate}, a geometric polyline \texttt{streetPath}, a local \texttt{score}, and a set of \texttt{mergedInfo} items that summarize aggregated information, including whether the segment is currently considered part of the cycling network via attributes such as \texttt{bikeLane}, \texttt{speedLimit}, and \texttt{bikePath}. In this model, a street segment is the atomic infrastructure unit: each \textit{Contribution} always refers to exactly one \textit{StreetSegment}, and the system periodically merges all contributions linked to that segment in order to update its score, its merged information, and ultimately its visibility in paths and map-based queries. When a segment becomes a bike path according to the merged data, it is highlighted on the map and becomes eligible to be part of the paths suggested to users when searching for routes between two locations.
 
+​
 
-The detection process is modeled by the \textit{Detection} class, which represents the outcome of automatic analysis on a user's trip. When sensor data collected during a trip suggests the presence of a possible obstacle, the system generates a detection linked to that trip and to the affected path segment. Detections remain private and require explicit user confirmation: when a registered user reviews their trip, they confirm whether the suggested detection was a genuine obstacle encountered during the ride. Only upon confirmation does the system create or update a related Contribution, associating the appropriate \textit{Information} subtype (such as \textit{Obstacle} or \textit{Roadwork}) to the Path. Unconfirmed or rejected detections do not affect public contributions and path information. In this way, detections act as an intermediate, trip-specific representation that requires user validation, while contributions are the authoritative model for updating the infrastructure database.
+A \textit{Contribution} encapsulates any piece of information about the cycling network generated during trips or via manual reports. It includes metadata such as \texttt{id}, \texttt{creationTime}, \texttt{title}, \texttt{description}, and flags \texttt{isPublished} and \texttt{isAutomatic}, as well as an optional qualitative \texttt{status} of type \textit{Status}, ranging from \texttt{NONE} to \texttt{OPTIMAL}, \texttt{MEDIUM}, \texttt{SUFFICIENT}, and \\\texttt{REQUIRES\_MAINTENANCE}. Each contribution also maintains a list of \textit{Information} elements (\texttt{info: List<Information>}) describing the actual content of the report; among these, a distinguished group is represented by the abstract \textit{BikePathSuitability} subclass, which includes attributes \texttt{isSuitable} and \texttt{reasonDetails} and is further specialized into concrete classes such as \textit{SpeedLimitUpdate}, \textit{BikeLaneUpdate}, and \textit{HeavyTraffic}. When a contribution concerns a street segment that is not currently marked as bike path, ordinary information items (for example obstacles or roadworks) are immediately discarded during merging, whereas \textit{BikePathSuitability} information is temporarily retained: the system periodically retrieves all contributions from different users for that segment and only after a given time window, if multiple coherent suitability items support the same conclusion (for instance, consistent speed-limit or bike-lane updates), it may promote the segment to bike path instead of discarding them. In this way, bike-path suitability information acts as a special trigger influencing both the boolean \texttt{bikePath} attribute of the street segment and the computation of path suggestions, while generic information only refines the segment’s score and maintenance status.
 
+​
 
-The \textit{Map} entity models the application’s visualization layer. It displays all available paths, their associated contributions and information, and overlays real-time obstacles and statistics to let users plan their journeys. Any user can select a start and end point on the map; the system calculates the path, presents the obstacles detected, and helps choose the safest or most comfortable route.
+Infrastructure-related facts are modeled by the abstract \textit{Information} class, which records \\ \texttt{creationTime} and \texttt{position} (a \textit{Coordinate} described by \texttt{latitude} and \texttt{longitude}), and is specialized not only by \textit{BikePathSuitability} but also by other concrete subclasses. These include \textit{Warning}, \textit{Event}, \textit{Obstacle}, \textit{Animal}, and \textit{Roadwork}, which respectively store a textual \texttt{message}, an event \texttt{name} and validity interval, an obstacle \texttt{type}, an \texttt{animal} \texttt{species} with a flag indicating whether it is wild, and the \texttt{responsibleAuthority} plus temporal bounds for roadworks. Such information items are attached to contributions and, after merging, to street segments as part of \texttt{mergedInfo}, providing a structured and typed view of the network’s conditions that supports both the computation of scores and the decision about whether a non-bike street segment can be upgraded to bike path.
 
+​
+
+Finally, the sensing and external-service layer is abstracted by the \textit{Sensors} and \textit{WeatherService} entities. \textit{Sensors}, characterized by \texttt{sensorId}, \texttt{type}, and \texttt{samplingFrequency}, are used by automatic trips to acquire motion and positioning data, which underpin automatic contribution creation, obstacle inference, and interruption detection. The \textit{WeatherService} represents an external provider contacted by the system to enrich automatic trips with contextual weather information, explaining the presence of the \texttt{weatherSummary} attribute in \textit{AutomaticTrip}; together with user-generated contributions and special \textit{BikePathSuitability} items, these elements allow the system to maintain an up-to-date, bike-centric representation of the road network that dynamically highlights and exploits suitable segments when answering path search requests.
 
 
 
@@ -121,16 +133,18 @@ The manual trip workflow enables the user to specify not only the start and end 
 
 
 
-\subsubsection{Path}
+\subsubsection{StreetSegment}
 \begin{figure}[H]
     \begin{center}
-        \includegraphics[width=1\linewidth]{RASD/Version1.0/images/path_state_diagram.png}
-        \caption{Path.}
-        \label{fig:path_state_diagram}%
+        \includegraphics[width=1\linewidth]{RASD/Version1.0/images/street_segment_state_diagram.png}
+        \caption{StreetSegment.}
+        \label{fig:street_segment_state_diagram}%
     \end{center}
 \end{figure}
 
-The path state diagram captures the lifecycle of a route segment within the system. A path is created when a user submits a contribution referencing a previously unregistered route, leading to the ‘Active’ state. As further contributions are made—modifying path information, adding obstacles or attributes—the path remains or returns to ‘Active’. When a delete action (often due to an explicit contribution or moderation) is received, the path transitions to ‘Inactive’, effectively removing it from user access and marking the end of its lifecycle. The diagram models the dynamic evolution and possible removal of infrastructure elements based on crowdsourced contributions and administrative actions.
+The street segment state diagram models how a road segment is progressively considered, monitored, and possibly dismissed as part of the cycling network. Each segment starts in the ‘NotBikePath’ state and moves to ‘CandidateBikePath’ when it receives the first BikePathSuitability information derived from user contributions. During an observation period, the system keeps collecting suitability information: if, at the end, the accumulated BikePathSuitability is sufficiently positive and consistent, the segment is promoted to the ‘BikePath’ state; otherwise, if suitability is not confirmed, the segment transitions directly to ‘Inactive’, meaning it is no longer considered for cycling purposes.
+
+Once in the ‘BikePath’ state, the segment continues to receive contributions, including BikePathSuitability items and other Information such as obstacles or roadworks, and these trigger a transition to ‘BikePathUnderReview’ whenever an additional evaluation is required. In this review state, the system aggregates incoming suitability reports: if negative reports are not confirmed or are compensated by positive ones, the segment returns to ‘BikePath’, updating its merged information with any new obstacles or events while still being considered suitable; if, instead, consistent negative reports indicate that the segment is no longer suitable as a bike path, it moves to the ‘Inactive’ state. A direct transition from ‘BikePath’ to ‘Inactive’ also exists to model administrative decisions or permanent closures, and even after a segment has become ‘Inactive’, the arrival of new BikePathSuitability information can restart the cycle by allowing it to be reconsidered as a ‘CandidateBikePath’.
 
 \section{Product Functions}
 \label{sec:product_functions}
@@ -189,61 +203,88 @@ These statistics allow cyclists to review past activity and monitor their progre
 \subsubsection*{User Authentication and Profile Management}
 
 \item \textbf{[R\creq]} Upon request, the system shall allow a new User to sign up to the platform, as long as all required personal information is provided and no existing account is associated with the submitted email.
+
 \item \textbf{[R\creq]}Upon request, the system shall allow the User to log into the platform, as long as authentication succeeds, and access to his personal profile.
+
 \item \textbf{[R\creq]}Upon request, the system shall allow a Registered User to update their profile information, as long as all necessary data is provided.
+
 \item \textbf{[R\creq]}Whenever a Registered User updates their preferences, the system shall store these changes and apply them to future personalized route recommendations.
+
 \subsubsection*{Trip Recording and Statistics}
 \item \textbf{[R\creq]}Upon request, the system shall allow a Registered User to manually start recording a trip, as long as GPS permissions are granted.
+
 \item \textbf{[R\creq]}Upon request, the system shall allow a Registered User to manually stop a trip that was previously started.
-\item \textbf{[R\creq]}Whenever a trip is recorded, the system shall store its GPS track, timestamps, and speed data into the User’s trip history.
-\item \textbf{[R\creq]}Whenever a trip is stored, the system shall compute statistics such as total distance, average speed, travel time, and other performance metrics.
-\item \textbf{[R\creq]}Upon request, the system shall show a Registered User the statistics of any of their stored trips.
-\subsubsection*{Manual Path Information Insertion}
 
-\textbf{[R\creq]} Upon request, the system shall allow a Registered User to manually insert information about a bike path, including street names, path status, and obstacles.
+\item \textbf{[R\creq]}Whenever an automatic trip is recorded, the system shall store the trip with its GPS track, timestamps, speed data and contributions into the User’s trip history.
 
-\textbf{[R\creq]} Whenever manual path information is submitted, the system shall store it as a contribution associated with the selected path. %chiedi FGR
-
-\textbf{[R\creq]} Upon request, the system shall allow the Registered User to edit or update any of their pending manual contributions.
-
-% ----------------------------------------------------------
-
-\subsubsection*{Automatic Path Detection and User Confirmation}
-
-\textbf{[R\creq]} Upon request, the system shall allow a Registered User to activate the automatic path detection mode, as long as the User grants access to GPS, accelerometer, and gyroscope data.
-
-\textbf{[R\creq]} Whenever the system detects cycling movement based on sensor data, it shall automatically start collecting GPS coordinates and sensor readings.
+\item \textbf{[R\creq]}Whenever an Automatic Trip is stored, the system shall compute statistics such as total distance, average speed, travel time, and other performance metrics.
 
 \textbf{[R\creq]} Whenever automatic detection identifies a potential obstacle, the system shall generate a detection item and store it in the User’s trip session.
 
-\textbf{[R\creq]} Upon completion of a trip, the system shall present the detected path and all detected obstacles to the User, requesting confirmation or correction.
+\textbf{[R\creq]} Upon completion of an automatic trip, the system shall present the detected path and all detected obstacles to the User, requesting confirmation or correction.
 
 \textbf{[R\creq]} Whenever a Registered User confirms or corrects automatically detected information, the system shall convert such detections into contributions associated with the current path.
 
-% ----------------------------------------------------------
 
-\subsubsection*{Publication of Path Information}
+\textbf{[R\creq]} Upon request, the system shall allow a Registered User to manually create a Manual trip by specifying the StreetSegments they have cycled through, without using sensor data and without computing trip statistics.
 
-\textbf{[R\creq]} Upon request, the system shall allow a Registered User to publish any of their contributions (manual or confirmed automatic). %fgr spiega come funzionano le contributions diobon tu crei le contribution e poi decidi di postarle o le contributions sono già direttamente il post?
+\textbf{[R\creq]} Upon request, the system shall allow a Registered User to manually create a contribution describing information about a specific StreetSegment (e.g., obstacles or general condition), regardless of whether it is associated with a manually created trip.
 
-\textbf{[R\creq]} Whenever a Registered User publishes a contribution, the system shall add the published information to the public dataset visible to all users.
 
-\textbf{[R\creq]} Whenever a recently completed trip ends and its detections are validated, the system shall offer the User an immediate option to publish the corresponding contribution.
+\item \textbf{[R\creq]} Upon request, the system shall allow a Registered User to publish any of their manual contributions from a stored trip not yet published.
+
+
+\item \textbf{[R\creq]}Upon request, the system shall show a Registered User the statistics and contributions of any of their stored trips.
+
+
+\subsubsection*{Publication and Aggregation of Contributions}
+
+\textbf{[R\creq]} Upon request, the system shall allow a Registered User to publish any of their contributions (manual or confirmed automatic) that are currently in draft state.
+
+\textbf{[R\creq]} Whenever a Registered User publishes a contribution, the system shall add all its Information items to the public dataset associated with the corresponding StreetSegment.
+
+\textbf{[R\creq]} Whenever a recently completed automatic trip ends and its detections are validated, the system shall offer the User an immediate option to publish the contributions generated from that trip.
+
+\textbf{[R\creq]} Whenever a published contribution contains standard Information (e.g., obstacles, roadworks, warnings) about a StreetSegment that is currently considered a bike path, the system shall merge such Information into the StreetSegment’s aggregated data used for routing and scoring.
+
+\textbf{[R\creq]} Whenever a published contribution contains BikePathSuitability Information about a StreetSegment, the system shall store it and consider it in the periodic aggregation of bike-path suitability for that StreetSegment, regardless of its current bike-path status.
+
+\textbf{[R\creq]} At configurable time intervals, the system shall aggregate all published contributions referring to the same StreetSegment, taking into account data recency, number of supporting contributions, and type of Information, in order to update the StreetSegment’s merged information, score, and bike-path status.
+
+
+
+\textbf{[R\creq]} Whenever a published contribution contains only standard Information 
+(e.g., obstacles, roadworks, warnings) about a StreetSegment that is not currently marked 
+as a bike path, the system shall discard such Information for aggregation purposes and 
+shall not use it to update that StreetSegment.
+
+\textbf{[R\creq]} Whenever the aggregated BikePathSuitability Information for a 
+StreetSegment exceeds a configurable positive threshold, the system shall mark that 
+StreetSegment as a bike path; whenever it falls below a configurable negative threshold, 
+the system shall unmark that StreetSegment as a bike path.
+
+
 
 % ----------------------------------------------------------
 
 \subsubsection*{Path Consultation and Map Navigation}
 
-\textbf{[R\creq]} Upon request, the system shall allow any User (registered or unregistered) to browse the map of available bike paths.
+\textbf{[R\creq]} Upon request, the system shall allow any User (registered or unregistered) to browse the map and visually inspect all StreetSegments currently marked as bike paths.
 
-\textbf{[R\creq]} Upon request, the system shall allow the User to specify an origin and destination for route lookup.
+\textbf{[R\creq]} Upon request, the system shall allow the User to specify an origin and a destination for route lookup.
 
-\textbf{[R\creq]} Whenever the system receives an origin and destination, it shall compute all viable bike paths connecting the two points.
+\textbf{[R\creq]} Whenever the system receives an origin and a destination, it shall compute candidate Paths by running a routing algorithm over the StreetSegments that are currently marked as bike paths.
 
-\textbf{[R\creq]} Whenever the system receives an origin and destination, it displays the top 5 best paths ranked by score.
+\textbf{[R\creq]} Whenever the system receives an origin and a destination, it shall display the top 5 candidate Paths ranked by score.
+
+\textbf{[R\creq]} If no fully bike-path-only route exists between the selected origin and destination, the system shall still display the map with all available bike-path StreetSegments highlighted, allowing the User to inspect partial bike-path options.
+
+\textbf{[R\creq]} Upon request, the system shall show detailed information about a selected Path, including the sequence of StreetSegments, their status, obstacles, and the aggregated user contributions associated with them.
+
+\textbf{[R\creq]} The system shall visually highlight on the map only those StreetSegments
+that are currently marked as bike paths, distinguishing them from regular street segments.
 
 
-\textbf{[R\creq]} Upon request, the system shall show detailed information about a selected path, including status, obstacles, and user contributions.
 
 % ----------------------------------------------------------
 
@@ -264,17 +305,22 @@ These statistics allow cyclists to review past activity and monitor their progre
 
 \subsubsection*{Data Aggregation and Consolidation}
 
-\textbf{[R\creq]} Whenever the system receives multiple contributions referring to the same path, it shall aggregate them by applying a prevalence strategy considering data recency and number of confirmations.
 
-\textbf{[R\creq]} Whenever aggregated data modifies the computed condition of a path, the system shall update the path status accordingly.
+%\textbf{[R\creq]} At configurable time intervals, the system shall aggregate all published contributions referring to the same StreetSegment by applying a prevalence strategy that considers data recency, number of supporting contributions, and type of Information.
 
-\textbf{[R\creq]} Whenever a path status changes, the system shall notify Registered Users who marked that path as a favorite.
+%\textbf{[R\creq]} Whenever the aggregated BikePathSuitability for a StreetSegment satisfies the suitability criteria for cycling (e.g., presence of bike lane, low traffic, acceptable car speed), the system shall mark that StreetSegment as a bike path.
+
+\item \textbf{[R\creq]} Whenever the aggregated BikePathSuitability for a StreetSegment no longer satisfies the suitability criteria for cycling (e.g., recent contributions reporting heavy traffic or unsafe speed), the system shall unmark that StreetSegment as a bike path and treat it as a regular street segment.
+
+\textbf{[R\creq]} Whenever the bike-path status or aggregated condition of one or more StreetSegments changes, subsequent route computations shall use the updated information, so that Paths containing StreetSegments no longer suitable for cycling are no longer proposed among the best bike routes.
+
+
 
 % ----------------------------------------------------------
 
 \subsubsection*{Weather Data Enrichment}
 
-\textbf{[R\creq]} Whenever a trip is saved, the system shall request weather information (temperature, wind speed, weather conditions) from an external service based on trip time and location.
+\textbf{[R\creq]} Whenever an Automatic trip is saved, the system shall request weather information (temperature, wind speed, weather conditions) from an external service based on trip time and location.
 
 \textbf{[R\creq]} Whenever weather data is retrieved, the system shall associate it with the corresponding trip summary.
 
@@ -336,9 +382,6 @@ a simple and intuitive interface, accessible even to those with limited technica
 
 
     \textbf{[DA\cda]} When automatic tracking is enabled, the mobile device’s sensors operate correctly and provide accurate data samples.
-
-
-    \textbf{[DA\cda]} The urban cycling infrastructure can be accurately represented by a finite set of interconnected paths.
 
 
     \textbf{[DA\cda]} Users do not intentionally provide false information about bike paths, obstacles, or conditions.

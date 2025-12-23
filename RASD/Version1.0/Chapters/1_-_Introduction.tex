@@ -39,23 +39,22 @@ In this section, there are defined the goals that the system has to achieve:
 
         \textbf{[G\cg]}  Registered users should be able to automatically insert information about bike paths through data acquisition from mobile devices.
 
-        \textbf{[G\cg]}  Users should be able to confirm or correct automatically acquired information before publication.
+        %\textbf{[G\cg]}  Users should be able to confirm or correct automatically acquired information before publication.
 
         \textbf{[G\cg]}  Users should be able to publish paths' information. % secondo me bisognerebbe cambiare wording
 
     \uline{\textbf{Consultation}}
     
-        \textbf{[G\cg]} Both registered and unregistered users should be able to consult information about available bike paths.
-
-        \textbf{[G\cg]} Users should be able to choose the most suitable bike path to their destination according to their preferences.
-%visualizzare sulla mappa è più un requirement
-
-        %aggiungerei un goal che dice che gli user dovrebbero avere la possibilità di scegliere  un percorso da A verso B tra quelli disponibili 
+        \textbf{[G\cg]} Both registered and unregistered users should be able to consult information about available bike paths and choose the most suitable one according to their preferences.
 
     \uline{\textbf{Data Aggregation}}
 
-        \textbf{[G\cg]}  The system should aggregate information coming from multiple users about the same paths, considering data freshness and number of confirmations. % al massimo qua si può mettere come goal il fatto che calcola il best path pero potrebbe comunque essere un req
+        \textbf{[G\cg]}  The system should aggregate information coming from multiple users about the same paths, considering data freshness and number of confirmations representing them as accurately as possible based on users' contributions, allowing them to discover more comfortable routes than generic roads . % al massimo qua si può mettere come goal il fatto che calcola il best path pero potrebbe comunque essere un req
 
+      %  \textbf{[G\cg]} The system shall represent as accurately as possible the current condition of street segments, based on users’ reported and automatically detected information.
+
+
+      %  \textbf{[G\cg]} The system shall automatically identify and maintain bike paths by analysing users’ Contributions about street segments, so that cyclists can discover routes that are safer or more comfortable than generic roads.
     %\uline{\textbf{Data Enrichment}}
 
         %\textbf{[G\cg]}  The system should enrich trip data with meteorological information when available. %forse non è un goal, si può aggregare con il fatto che prenda automaticamente i dati
@@ -176,9 +175,46 @@ BBP provides the following core functionalities:
 \subsection{Abbreviations} \begin{description} \item[Id] Identifier \end{description}
 
 
-\section{Revision history} \begin{itemize} \item November 8, 2025: version 1.0 (First release) \end{itemize}
+\section{Revision history}
+\label{sec:revision_history}%
+\label{sec:definition_acronyms_abbreviations}%
+\begin{table}[H]
+    \begin{center}
+        \begin{tabular}{ |l|l|l|}
+            \hline
+            \textbf{Revised on} & \textbf{Version}   & \textbf{Description}                           \\
+            \hline
+            23/12/2025             & 1.0   &   Initial Release of the document  \\
+            \hline
+         \end{tabular}
+         \caption{Revision history}
+        \label{tab:revision_history}%
+    \end{center}
+\end{table}
 
-\section{Document structure} \end{enumerate}
+
+\newcounter{bib}
+\setcounter{bib}{1}
+\newcommand{\cbib} {\thebib\stepcounter{bib}}
+
+\section{Reference Documents}
+\label{sec:reference_documents}
+\begin{itemize}
+    \item{[\cbib]} Di Nitto, Rossi, Camilli, \textit{"A.Y. 2025-2026 Software Engineering 2 Requirement Engineering and Design Project"}, 2025.
+    \item{[\cbib]} ISO/IEC/IEEE 29148:2018, \textit{"Systems and Software Engineering — Life Cycle Processes — Requirements Engineering," International Organization for Standardization, International Electrotechnical Commission, and Institute of Electrical and Electronics Engineers}, 2018.
+\end{itemize}
+
+\section{Document Structure}
+\label{sec:document_structure}%
+This document is composed of six sections:
+\begin{itemize}
+    \item{} \nth{1} Chapter - Introduction
+    \item{} \nth{2} Chapter - Overall Description
+    \item{} \nth{3} Chapter - Specific Requirements
+    \item{} \nth{4} Chapter - Formal Analysis using Alloy
+    \item{} \nth{5} Chapter - Effort Spent
+    \item{} \nth{6} Chapter - References
+\end{itemize}
 
 
     

@@ -1,0 +1,115 @@
+\section{Scope}
+\label{sec:scope}%
+BikeBetterPath (BBP) is a platform that supports cyclists in discovering, evaluating, and using safe and comfortable routes in urban areas. The system allows registered users to record their bike trips, manually or automatically, and to submit contributions describing obstacles, roadworks, and other conditions observed on specific street segments.
+
+The platform defines a Contribution as a structured report that associates one or more typed Information items with a StreetSegment, possibly linked to a Trip performed by a user. A StreetSegment is the atomic infrastructure unit in BBP, representing a portion of road between two consecutive intersections, with no intermediate junctions, so that each segment can be evaluated and updated independently. A BikePath is not a static object stored in the database, but a logical route dynamically computed by the system by chaining StreetSegments that are currently considered suitable for cycling, according to aggregated user feedback and automatically detected data.
+
+The system automates key activities such as collecting sensor data from mobile devices, inferring potential obstacles, requesting user confirmation, and periodically aggregating contributions to maintain an up-to-date representation of street conditions. This aggregation follows a merge policy that weighs Information items based on their freshness, consistency, and number of independent confirmations, so that recent and widely supported reports have more influence on the segment’s state. In particular, the system evaluates specialized BikePathSuitability Information to promote or demote StreetSegments as bike paths, highlights suitable segments on the map, and uses them as the basis for route computation. Additionally, it provides tools for users to visualize recorded trips, inspect current bike paths, and obtain personalized route recommendations that reflect their preferences and the latest crowd-sourced information.
+
+
+
+\section{Definitions, Acronyms, Abbreviations}
+\label{sec:definition_acronyms_abbreviations}
+
+\begin{itemize}
+\item \textbf{System, Platform}: these terms are used interchangeably when referring to the system-to-be-developed (BBP).
+\item \textbf{BikePath}: a route suggested by the system that is composed only of StreetSegments currently marked as suitable for cycling.
+\item \textbf{StreetSegment}: an atomic portion of the road network between two intersections, which can be evaluated and updated independently.
+\item \textbf{Contribution}: a user-generated or automatically generated report containing one or more Information items about a StreetSegment.
+\item \textbf{Information}: an abstract fact attached to a Contribution (e.g., Obstacle, Roadwork, Warning, BikePathSuitability).
+\item \textbf{BikePathSuitability}: a specialized Information used to express and aggregate the suitability of a StreetSegment as part of a bike path.
+\item \textbf{Trip}: a cycling session performed by a registered user, either recorded automatically through sensors or manually specified.
+\end{itemize}
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{ |l|l| }
+\hline
+\textbf{Acronyms} & \textbf{Definition}                              \\
+\hline
+RASD   & Requirements Analysis \& Specification Document   \\
+\hline
+DD     & Design Document   \\
+\hline
+API    & Application Programming Interface                  \\
+\hline
+REST   & REpresentational State Transfer   \\
+\hline
+DBMS   & DataBase Management System   \\
+\hline
+GPS    & Global Positioning System \\
+\hline
+UI     & User Interface \\
+\hline
+JSON   & JavaScript Object Notation  \\
+\hline
+URL    & Uniform Resource Locator  \\
+\hline
+URI    & Uniform Resource Identifier  \\
+\hline
+HTTPS  & HyperText Transfer Protocol over Secure Socket Layer   \\
+\hline
+BBP    & BikeBetterPath \\
+\hline
+\end{tabular}
+\caption{Acronyms used in the document.}
+\label{tab:acronyms}%
+\end{center}
+\end{table}
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{ |l|l| }
+\hline
+\textbf{Abbreviations} & \textbf{Definition} \\
+\hline
+UC   & Use Case \\
+\hline
+DA   & Domain Assumption \\
+\hline
+\end{tabular}
+\caption{Abbreviations used in the document.}
+\label{tab:Abbreviations}%
+\end{center}
+\end{table}
+
+\section{Revision history}
+\label{sec:revision_history}%
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{ |l|l|l|}
+\hline
+\textbf{Revised on} & \textbf{Version}   & \textbf{Description}                           \\
+\hline
+19/12/2025          & 1.0   & Initial Release of the document  \\
+\hline
+\end{tabular}
+\caption{Revision history}
+\label{tab:revision_history}%
+\end{center}
+\end{table}
+
+\newcounter{bib}
+\setcounter{bib}{1}
+\newcommand{\cbib} {\thebib\stepcounter{bib}}
+
+\section{Reference Documents}
+\label{sec:reference_documents}
+\begin{itemize}
+    \item{[\cbib]} Di Nitto, Rossi, Camilli, \textit{"A.Y. 2024-2025 Software Engineering 2 Requirement Engineering and Design Project"}, 2024.
+    \item{[\cbib]} ISO/IEC/IEEE 29148:2018, \textit{"Systems and Software Engineering — Life Cycle Processes — Requirements Engineering."}
+\end{itemize}
+
+\section{Overview}
+\subsection{Document Structure}
+\label{sec:doc_structure}%
+This document is composed of seven sections:
+\begin{itemize}
+    \item{} \nth{1} Chapter - Introduction
+    \item{} \nth{2} Chapter - Architectural Design
+    \item{} \nth{3} Chapter - User Interface Design
+    \item{} \nth{4} Chapter - Requirements Traceability
+    \item{} \nth{5} Chapter - Implementation, Integration and Test Plan
+    \item{} \nth{6} Chapter - Effort Spent
+    \item{} \nth{7} Chapter - References
+\end{itemize}
