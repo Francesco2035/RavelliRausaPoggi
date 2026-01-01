@@ -1,0 +1,637 @@
+\section{Architectural Design}
+
+\subsection{Overview: High-Level Components and Interactions}
+The architectural design of the \textbf{Best Bike Paths (BBP)} system is conceived to provide a scalable, responsive, and data-intensive environment. To handle the complexity of real-time sensor data processing and intelligent routing, the system adopts a combination of modern architectural styles. 
+
+The high-level architecture is characterized by the following paradigms:
+
+\begin{itemize}
+    \item \textbf{Client-Server Architecture:} The system is based on a clear distinction between the \textit{Mobile Clients}, used by cyclists for data collection and navigation, and the \textit{Central Backend}, which performs the heavy computational tasks such as data aggregation and path optimization.
+    
+    \item \textbf{4-Tier Architecture:} Following industry best practices for modularity, the system is organized into four distinct layers:
+    \begin{enumerate}
+        \item \textbf{Presentation Tier:} Composed of the mobile application which handles user interaction, map rendering, and sensor data acquisition (GPS and accelerometer).
+        \item \textbf{Application Tier:} Contains the core business logic, implemented as independent services (e.g., Trip Manager, User Manager, Path Finder) that expose functionalities through a set of APIs.
+        \item \textbf{Service Management Tier:} Responsible for cross-cutting concerns such as authentication, load balancing, and integration with external providers (e.g., OpenStreetMap and Weather APIs).
+        \item \textbf{Data Tier:} A hybrid persistence layer (Polyglot Persistence) that manages the long-term storage of user profiles, raw sensor streams, and the geospatial road network.
+    \end{enumerate}
+
+    \item \textbf{Microservices Pattern:} Each core functionality is decoupled into independent modules. This allows for selective scalability: for instance, the \textit{Aggregation Engine} can be scaled horizontally to handle peaks of incoming sensor data from thousands of users without impacting the performance of the \textit{Path Finder} service.
+
+    \item \textbf{REST (Representational State Transfer):} Communication between the mobile client and the backend, as well as inter-service communication, is performed via RESTful APIs over HTTPS. This ensures interoperability, security, and a standardized way to exchange GeoJSON data and system states.
+\end{itemize}
+
+\subsubsection{High-Level Interaction and Data Flow}
+The system operates through a \textbf{Data-Driven Routing Pipeline}. The interaction begins when the Mobile Client pushes raw sensor logs to the backend upon completion of a trip. These logs are stored in a \textit{Document Store} (optimized for high-volume writes) and then asynchronously processed by the \textit{Aggregation Engine}. 
+
+This engine detects road anomalies and updates the "Health Scores" of the corresponding street segments. Finally, the \textit{Path Finder} service utilizes a \textit{Graph Database} to calculate optimal routes. By weighting the edges of the graph with these dynamic health scores, BBP ensures that suggested paths are not merely the shortest, but the safest and most comfortable for the cyclist.
+
+
+
+\section{Component View}
+\label{sec: component_view}
+
+In this section, the main components of the BBP system are outlined, with an accurate description of what each of them aims to accomplish. Every component is approximately derived from one of the product functions discussed in Section 2.2 of the RASD. Further, components are grouped together by affinity in high-level "macro-categories" to form microservices, obtaining what is usually referred to as "bounded contexts" in Domain-Driven Development (DDD). Components also expose interfaces with methods to be invoked from external entities and communicate with some databases.
+
+\subsection{Component Diagram}
+\label{subsec:component_diagram}
+\begin{figure} [H]
+    \begin{center}
+        \includegraphics[width=0.95\linewidth]{DD/Images/component diagram.png}
+        \caption{Component diagram of the BBP system.}
+        \label{fig:component_diagram}
+    \end{center}
+\end{figure}
+
+\subsection{Components Description}
+\label{subsec:components_description}
+
+Each of the following components shall be thought of as a collection of simpler units that closely interact together to provide the offered functionalities. Specification of these units and how they form the component as a whole is left to the single teams or developers, as it is not binding towards the overall architecture of the system (given that every component must still fulfill the outlined expectations).
+
+\begin{enumerate}
+
+    \item \textbf{SecurityManager:}  
+    This component is responsible for authentication and authorization of users accessing the system. It manages login operations and token validation, ensuring that only authenticated users can invoke protected functionalities. The SecurityManager interacts with the SecurityDBMS, a relational DBMS storing credentials and authentication-related information, and exposes authorization interfaces used by the other microservices.
+
+    \item \textbf{MailingService:}  
+    This component handles email-based communications required by the platform, such as account verification messages. It is invoked by the SecurityManager during registration procedures in order to decouple authentication logic from communication concerns.
+
+    \item \textbf{ProfileManager:}  
+    This component manages user profile information, including personal data and preferences. It provides operations to retrieve and update profiles and persists such data through the ProfilesDBMS, a relational DBMS. All profile-related operations require prior authorization.
+
+    \item \textbf{AutomaticTripProcessor:}  
+    This component manages the lifecycle of automatically recorded trips. Trip recording is performed locally on the client, which collects GPS and sensor data until the user explicitly terminates the trip.  
+    When the user decides to save the recorded trip, the collected data is sent to the AutomaticTripProcessor, which first invokes the Inference Service to analyze sensor data and automatically generate preliminary contributions (e.g., road anomalies or quality indicators). The resulting data is then forwarded to the Data Enrichment Service, which enriches the trip with contextual information such as weather conditions by interacting with an external Weather Service.  
+    The enriched and inferred trip is returned to the AutomaticTripProcessor, which stores a draft copy in the RawDataDBMS, marked as non-definitive, and sends the processed trip back to the client. At this stage, the user can review, modify, add, or remove contributions, including those generated automatically.  
+    Finally, depending on user choice, the trip can be discarded, saved as private, or published. If the trip is discarded, the corresponding data is removed from the RawDataDBMS. If the trip is saved as private, a definitive copy is stored and marked as non-public. If the trip is published, the AutomaticTripProcessor stores the definitive copy marked as public and publishes a corresponding event to the Kafka message broker, enabling asynchronous aggregation and merging processes.
+
+
+    \item \textbf{ManualReportManager:}  
+    This component handles user-generated manual reports and manually declared trips. Users can submit individual reports or manually describe a completed trip by specifying whether the submitted data represents a trip, a standalone report, or both.  
+    Manual submissions are stored directly in the RawDataDBMS without undergoing inference or data enrichment. Depending on user choice, the data can be saved as private or published. If published, the ManualReportManager generates an event that is sent to the Kafka message broker.
+
+    \item \textbf{TripHistoryManager:}  
+    This component provides functionalities to retrieve, list, and delete previously recorded trips. It accesses the RawDataDBMS to manage persisted trip data according to user requests.
+
+    \item \textbf{Inference Service:}  
+    This component analyzes raw sensor data associated with automatically recorded trips in order to infer meaningful information, such as anomalies, obstacles, or road quality indicators. The generated contributions are forwarded to the Data Enrichment Service and included in the processed trip returned to the client.
+
+    \item \textbf{Data Enrichment Service:}  
+    This component enriches trip data with additional contextual information. It integrates external data sources, such as weather conditions, by invoking an external Weather Service through REST calls. The Data Enrichment Service is modeled as a separate component to allow future extensions with additional enrichment sources without impacting other parts of the system.
+
+    \item \textbf{Data Aggregation Service:}  
+    This component is responsible for aggregating and consolidating contributions coming from multiple users. It consumes events from the Kafka message broker when trips or reports are published. According to internal policies (e.g., after a certain number of new trips or based on time-based criteria), the Data Aggregation Service retrieves relevant data from the RawDataDBMS, a document-oriented DBMS, and processes it to update the global representation of bike path conditions.
+
+    \item \textbf{Contribution Analyzer:}  
+    This internal component of the Data Aggregation Service analyzes collected contributions and extracts relevant features used during the aggregation process.
+
+    \item \textbf{Relevance Engine:}  
+    This component evaluates the relevance of individual contributions by considering factors such as consistency, frequency, and recency, determining which contributions should influence the system’s global state.
+
+    \item \textbf{Graph Weight Update Service:}  
+    This component updates the weights of street segments stored in the RoutingDBMS, a graph-oriented DBMS. Updated weights reflect aggregated road conditions and are used to improve routing accuracy.
+
+    \item \textbf{PathFinder Service:}  
+    This component computes optimal routes between two locations by executing routing algorithms over the graph stored in the RoutingDBMS, taking into account dynamically updated edge weights.
+
+    \item \textbf{Map Discovery Manager:}  
+    This component provides map exploration functionalities, allowing users to retrieve and visualize available bike paths within a given geographical area.
+
+    \item \textbf{Kafka Message Broker:}  
+    Kafka is used as an asynchronous messaging infrastructure to decouple trip publication and manual reporting from aggregation and merging processes. It enables background processing of published data without blocking user interactions and supports scalable, event-driven communication between microservices.
+
+    \item \textbf{SecurityDBMS, ProfilesDBMS, RawDataDBMS, RoutingDBMS:}  
+    The SecurityDBMS and ProfilesDBMS are relational databases used to store authentication credentials and user profile data, respectively. The RawDataDBMS is a document-oriented database that stores trips and contributions in flexible JSON-like structures. The RoutingDBMS is a graph database that stores street segments and their relationships, supporting efficient routing and graph-based analyses. All DBMS components are modeled as passive elements accessed directly by the corresponding microservices.
+
+    \item \textbf{Weather Service (External System):}  
+    This external system provides meteorological data used during the data enrichment process. It is accessed through standard REST calls and is not part of the core system architecture.
+
+\end{enumerate}
+
+\newpage
+
+\section{Component Interfaces}
+\label{sec:component_interfaces}
+
+In this section the component interfaces defined for the system are described, highlighting for each one the expected inputs and outputs.
+
+\subsection{REST API Endpoints}
+
+Each microservice of the system exposes one or more interfaces, corresponding to the resource endpoints of the defined REST API. All protected endpoints require prior authorization through the \texttt{/authorization/validateToken} interface, which is implicitly invoked by the API Gateway before forwarding requests to the target microservice.
+
+All API endpoints must be accessed through the HTTPS POST method, unless explicitly stated otherwise. Input parameters and output values are provided in JSON format within the request and response bodies.
+
+The general structure of an API request is the following:
+
+\texttt{https://DOMAIN/api/VERSION/INTERFACE/FUNCTION}
+
+\subsubsection*{/authentication}
+
+\begin{itemize}
+    \item \texttt{/login} \\
+    \textit{parameters:} \{ username: String, passwordHash: String \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{200 OK:} body: \{ accessToken: String, refreshToken: String \}
+        \item \textbf{400 Bad Request:} body: \{ error: Enum(wrongCredentials) \}
+    \end{itemize}
+
+    \item \texttt{/refreshToken} \\
+    \textit{parameters:} \{ refreshToken: String \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{200 OK:} body: \{ accessToken: String \}
+    \end{itemize}
+
+    \item \texttt{/logout} \\
+    \textit{parameters:} \{ accessToken: String \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{204 No Content}
+    \end{itemize}
+\end{itemize}
+
+\subsubsection*{/authorization}
+
+\begin{itemize}
+    \item \texttt{/validateToken} \\
+    \textit{parameters:} \{ token: String \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{200 OK:} body: \{ authorized: true \}
+        \item \textbf{401 Unauthorized:} body: \{ authorized: false \}
+    \end{itemize}
+\end{itemize}
+
+\subsubsection*{/profiles}
+
+\begin{itemize}
+    \item \texttt{/getPreferences} \\
+    \textit{parameters:} \{ userId: String \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{200 OK:} body: \{ preferences: MapPreferences \}
+    \end{itemize}
+
+    \item \texttt{/updatePreferences} \\
+    \textit{parameters:} \{ preferences: MapPreferences \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{200 OK}
+    \end{itemize}
+
+    \item \texttt{/deleteAccount} \\
+    \textit{parameters:} \{ userId: String, passwordHash: String \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{204 No Content}
+        \item \textbf{400 Bad Request:} body: \{ error: Enum(wrongCredentials) \}
+    \end{itemize}
+\end{itemize}
+
+
+\subsubsection*{/map}
+
+\begin{itemize}
+    \item \texttt{/getOverlay} \\
+    \textit{parameters:} \{ boundingBox: BoundingBox, preferences: MapPreferences (optional) \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{200 OK:} body: \{ geoJson: GeoJSON \}
+    \end{itemize}
+
+    \item \texttt{/getSegments} \\
+    \textit{parameters:} \{ boundingBox: BoundingBox \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{200 OK:} body: \{ segments: [ StreetSegment ] \}
+    \end{itemize}
+
+    \item \texttt{/getSegmentDetails} \\
+    \textit{parameters:} \{ segmentId: String \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{200 OK:} body: \{ segment: StreetSegment, obstacles: [ Contribution ] \}
+    \end{itemize}
+
+    \item \texttt{/getObstacleDetails} \\
+    \textit{parameters:} \{ contributionId: String \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{200 OK:} body: \{ contribution: Contribution \}
+    \end{itemize}
+
+    \item \texttt{/calculateRoute} \\
+    \textit{parameters:} \{ start: Coordinate, end: Coordinate, preferences: MapPreferences (optional) \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{200 OK:} body: \{ route: Route \}
+    \end{itemize}
+\end{itemize}
+
+\subsubsection*{/trips/automatic}
+
+\begin{itemize}
+    \item \texttt{/submit} \\
+    \textit{parameters:} \{ tripData: RawTripData \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{200 OK:} body: \{ enrichedTrip: TripPreview \}
+    \end{itemize}
+
+    \item \texttt{/save} \\
+    \textit{parameters:} \{ tripId: String, isPublic: Boolean \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{200 OK}
+    \end{itemize}
+
+    \item \texttt{/discard} \\
+    \textit{parameters:} \{ tripId: String \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{204 No Content}
+    \end{itemize}
+\end{itemize}
+
+\subsubsection*{/reports/manual}
+
+\begin{itemize}
+    \item \texttt{/submit} \\
+    \textit{parameters:} \{ reportData: ManualReport, isTrip: Boolean, isPublic: Boolean \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{200 OK}
+    \end{itemize}
+\end{itemize}
+
+\subsubsection*{/trips/history}
+
+\begin{itemize}
+    \item \texttt{/list} \\
+    \textit{parameters:} \{ userId: String \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{200 OK:} body: \{ trips: [ TripSummary ] \}
+    \end{itemize}
+
+    \item \texttt{/getDetails} \\
+    \textit{parameters:} \{ tripId: String \} \\
+    \textit{responses:}
+    \begin{itemize}
+        \item \textbf{200 OK:} body: \{ trip: Trip \}
+    \end{itemize}
+\end{itemize}
+
+\subsection{Other Interfaces}
+
+The Kafka message broker is used exclusively for asynchronous, event-driven communication between backend services and does not expose REST interfaces. Internal communication between components belonging to the same microservice is not exposed and therefore omitted.
+
+\subsection{Data Models}
+\label{sec:data_models}
+
+This section defines the main data models exchanged between system components through REST APIs and asynchronous events. Models are represented in JSON format to provide a technology-agnostic view.
+
+\subsubsection{Profile and Preferences Models}
+
+\subsubsection*{MapPreferences}
+\begin{verbatim}
+{
+  "preferBikeLanes": true,
+  "preferCountrysideRoads": true,
+  "avoidHighTraffic": true,
+  "avoidUnpavedRoads": false,
+  "maxSlope": 6,
+  "safetyWeight": 0.7,
+  "speedWeight": 0.3
+}
+\end{verbatim}
+
+\subsection{Map and Routing Models}
+
+\subsubsection*{StreetSegment}
+\begin{verbatim}
+{
+  "segmentId": "string",
+  "start": { "latitude": 0.0, "longitude": 0.0 },
+  "end": { "latitude": 0.0, "longitude": 0.0 },
+  "healthScore": 0.82
+}
+\end{verbatim}
+
+\subsubsection*{Route}
+\begin{verbatim}
+{
+  "routeId": "string",
+  "isComplete": false,
+  "coverageRatio": 0.72,
+  "distance": 3200,
+  "estimatedTime": 780,
+  "path": [
+    { "latitude": 0.0, "longitude": 0.0 }
+  ],
+  "missingSegment": {
+    "from": { "latitude": 0.0, "longitude": 0.0 },
+    "to": { "latitude": 0.0, "longitude": 0.0 }
+  }
+}
+\end{verbatim}
+
+\subsection{Additional Supporting Models}
+
+\subsubsection*{BoundingBox}
+\begin{verbatim}
+{
+  "northEast": {
+    "latitude": 0.0,
+    "longitude": 0.0
+  },
+  "southWest": {
+    "latitude": 0.0,
+    "longitude": 0.0
+  }
+}
+\end{verbatim}
+
+\subsubsection*{TripSummary}
+\begin{verbatim}
+{
+  "tripId": "string",
+  "startTime": "ISO-8601 timestamp",
+  "endTime": "ISO-8601 timestamp",
+  "isPublic": false,
+  "coverageRatio": 0.85
+}
+\end{verbatim}
+
+\subsubsection*{SegmentDetails}
+\begin{verbatim}
+{
+  "segment": {
+    "segmentId": "string",
+    "healthScore": 0.82
+  },
+  "obstacles": [
+    {
+      "contributionId": "string",
+      "type": "POTHOLE",
+      "severity": 3
+    }
+  ]
+}
+\end{verbatim}
+
+
+\subsubsection*{Contribution}
+\begin{verbatim}
+{
+  "contributionId": "string",
+  "type": "POTHOLE | ROUGH_ROAD | TRAFFIC | GENERIC",
+  "severity": 1,
+  "coordinate": {
+    "latitude": 0.0,
+    "longitude": 0.0
+  },
+  "timestamp": "ISO-8601 timestamp",
+  "source": "AUTOMATIC | MANUAL",
+  "isPublic": true,
+  "mergeStatus": "PENDING | MERGED | FAILED"
+}
+\end{verbatim}
+
+
+\subsubsection*{WeatherInfo}
+\begin{verbatim}
+{
+  "condition": "SUNNY | RAIN | SNOW | WIND",
+  "temperature": 18.5,
+  "humidity": 0.65,
+  "windSpeed": 4.2
+}
+\end{verbatim}
+
+\subsubsection*{Token}
+\begin{verbatim}
+{
+  "accessToken": "string",
+  "refreshToken": "string",
+  "expiresAt": "ISO-8601 timestamp"
+}
+\end{verbatim}
+
+\subsection{Asynchronous Event Models}
+
+\subsubsection*{TripPublishedEvent}
+\begin{verbatim}
+{
+  "eventType": "TripPublished",
+  "tripId": "string",
+  "userId": "string",
+  "timestamp": "ISO-8601 timestamp"
+}
+\end{verbatim}
+
+\subsubsection*{ContributionPublishedEvent}
+\begin{verbatim}
+{
+  "eventType": "ContributionPublished",
+  "contributionId": "string",
+  "coordinate": {
+    "latitude": 0.0,
+    "longitude": 0.0
+  },
+  "timestamp": "ISO-8601 timestamp"
+}
+\end{verbatim}
+
+\subsubsection*{GraphUpdate}
+\begin{verbatim}
+{
+  "segmentId": "string",
+  "newHealthScore": 0.91,
+  "updatedAt": "ISO-8601 timestamp"
+}
+\end{verbatim}
+
+
+
+\footnotetext{
+Due to the incremental and contribution-driven nature of bike path data, the PathFinder component is designed to never fail. When a fully connected route cannot be computed, the system returns the best available partial route together with metadata describing the uncovered portion, ensuring graceful degradation and preserving usability.
+}
+
+\newpage
+\section{Runtime View}
+\label{sec:runtime_view}
+
+In this section, the dynamic behavior of the system is described. For each Use Case identified in Section 3.1 \textit{Use Cases and Activity Diagrams} of the RASD, the corresponding Sequence Diagram is provided, highlighting the interactions and messages exchanged between the involved components.
+
+As in previous sections, irrelevant details are omitted for clarity. In particular, most client-side interactions between the User and the Client App (e.g., form filling or minor UI interactions), implicit authorization checks performed by the API Gateway, and extremely frequent operations such as calls to the \texttt{/authorization/validateToken} endpoint are not explicitly shown, as they would unnecessarily increase the complexity of the diagrams.
+
+\newcounter{uc}
+\setcounter{uc}{1}
+\newcommand{\cuc}{\theuc\stepcounter{uc}}
+
+\subsubsection*{SD\cuc. Sign Up}
+\label{subsubsec:signup_sd}
+
+The User initiates the sign-up process by clicking the ``Sign Up'' button on the homepage of the Client App and submitting the required registration data through the \texttt{/api/v1/authentication/login} interface. The request is forwarded by the API Gateway to the \texttt{SecurityManager}, which validates the completeness and correctness of the submitted information, including password security requirements.
+
+The \texttt{SecurityManager} then queries the \texttt{SecurityDBMS} to verify whether the provided email address is already associated with an existing account. If the email is already registered, the sign-up process is interrupted and the User is redirected to the login page. If the validation is successful, the \texttt{SecurityManager} creates a new, unverified user account in the \texttt{SecurityDBMS} and invokes the \texttt{MailingService} to send a verification email containing a confirmation link with a limited validity period of 24 hours.
+
+When the User receives the verification email and clicks on the confirmation link before its expiration, a request is issued to the \texttt{/api/v1/authentication/verifyProfile} endpoint. The \texttt{SecurityManager} marks the account as verified in the \texttt{SecurityDBMS} and grants the User access to the profile completion page. At this point, the User can insert the remaining personal information required to complete the profile, after which the account becomes fully active and the User is allowed to access the platform functionalities.
+
+If the verification link expires before being used, the \texttt{SecurityManager} invalidates the link and removes the previously stored unverified account data from the \texttt{SecurityDBMS}, forcing the User to repeat the registration process.
+
+\newpage
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=1\linewidth]{DD/Images/sd/sd_signup.png}
+         \caption{Sign Up}
+         \label{fig:signup_sd}
+     \end{center}
+\end{figure}
+
+\newpage
+
+\subsubsection*{SD\cuc. Sign In}
+\label{subsubsec:signin_sd}
+
+The User initiates the sign-in process by clicking the ``Sign In'' button on the homepage of the Client App and submitting their credentials through the \texttt{/api/v1/authentication/login} API endpoint. The request is routed by the API Gateway to the \texttt{SecurityManager}, which validates the provided credentials by querying the \texttt{SecurityDBMS}.
+
+If the submitted credentials are not valid, the authentication process is immediately interrupted and the User is notified that the entered credentials are incorrect. Similarly, if the account associated with the provided email address has not yet been verified, the \texttt{SecurityManager} denies access and informs the User that the account is not verified.
+
+If the credentials are valid and the account is verified, the \texttt{SecurityManager} completes the authentication process by generating the access tokens and checking whether the User profile is complete. If the profile is complete, the User is redirected to the Home page of the platform. Otherwise, the User is redirected to the profile completion page, where the missing personal information can be provided.
+
+\newpage
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=1\linewidth]{DD/Images/sd/sd_signin.png}
+         \caption{Sign In}
+         \label{fig:signin_sd}
+     \end{center}
+\end{figure}
+
+\newpage
+
+
+\subsubsection*{SD\cuc. Delete Account}
+\label{subsubsec:delete_account_sd}
+
+The Registered User initiates the account deletion process by accessing the account settings page of the Client App and selecting the ``Delete account'' option. The system displays a warning explaining the consequences of account deletion and asks the User to confirm the operation. If the User cancels the process, no further action is performed and the User is returned to the account settings page.
+
+If the User confirms the deletion, the system requires re-authentication by requesting the User’s credentials. The credentials are submitted through the \texttt{/api/v1/profiles/deleteAccount} API endpoint and forwarded by the API Gateway to the \texttt{SecurityManager}. The \texttt{SecurityManager} validates the provided credentials by querying the \texttt{SecurityDBMS}. If the credentials are not valid, the deletion process is aborted and the User is notified accordingly.
+
+If the credentials are valid, the \texttt{SecurityManager} orchestrates the account deletion process. The User profile and preferences are removed from the \texttt{ProfilesDBMS}, all trips associated with the User are deleted from the \texttt{RawDataDBMS}, and authentication credentials are removed from the \texttt{SecurityDBMS}. Additionally, all active sessions and authentication tokens associated with the User are invalidated to prevent further access.
+
+Published contributions are not removed during this process, as they have already been aggregated and merged into the routing graph and can no longer be uniquely associated with a specific User.
+
+Finally, the system confirms the successful deletion of the account to the User, who is no longer able to access the platform using the previous credentials.
+
+\newpage
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=1\linewidth]{DD/Images/sd/sd_delacc.png}
+         \caption{Delete Account}
+         \label{fig:delete_account_sd}
+     \end{center}
+\end{figure}
+
+\newpage
+
+\subsubsection*{SD\cuc. Logout}
+\label{subsubsec:logout_sd}
+
+The User initiates the logout process by clicking the ``Logout'' button within the Client App. The logout request is sent through the \texttt{/api/v1/authentication/logout} API endpoint and forwarded by the API Gateway to the \texttt{SecurityManager}.
+
+Upon receiving the request, the \texttt{SecurityManager} invalidates the authentication token associated with the User by updating the \texttt{SecurityDBMS}, effectively terminating the active session. Once the token has been invalidated, the system confirms the successful logout operation.
+
+Finally, the User is redirected to the Home screen of the platform and is no longer authenticated, preventing access to protected functionalities until a new login is performed.
+
+\newpage
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=1\linewidth]{DD/Images/sd/sd_logout.png}
+         \caption{Logout}
+         \label{fig:logout_sd}
+     \end{center}
+\end{figure}
+
+\newpage
+
+\subsubsection*{SD\cuc. Edit Profile}
+\label{subsubsec:edit_profile_sd}
+
+The Registered User accesses the profile management section of the Client App by clicking on the ``Profile'' area and selecting the ``Edit profile'' option. The system retrieves the current profile information and visualization preferences by invoking the \texttt{/api/v1/profiles/getPreferences} API endpoint, which is forwarded by the API Gateway to the \texttt{ProfileManager}. The retrieved data is then displayed to the User in an editable form.
+
+The User updates the desired personal information and preferences, such as path visualization filters derived from previous trips, and confirms the changes by clicking the ``Apply'' button. The updated data is submitted through the \texttt{/api/v1/profiles/updatePreferences} API endpoint and handled by the \texttt{ProfileManager}.
+
+The \texttt{ProfileManager} validates the submitted changes, checking both data consistency and supported preference values. If the validation fails, the update process is aborted and the User is notified that the provided information is not valid. No modification is applied to the stored data.
+
+If the submitted data is valid, the \texttt{ProfileManager} updates the User profile and preferences in the \texttt{ProfilesDBMS}. Upon successful completion of the operation, the system notifies the User that the profile has been successfully updated, ensuring that the stored information remains consistent across the platform.
+
+\newpage
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=1\linewidth]{DD/Images/sd/sd_editprofile.png}
+         \caption{Edit Profile}
+         \label{fig:edit_profile_sd}
+     \end{center}
+\end{figure}
+
+\newpage
+
+\subsubsection*{SD\cuc. View Trip History}
+\label{subsubsec:view_trip_history_sd}
+
+The Registered User accesses the trip history section of the Client App by selecting the ``My trips'' option. The system retrieves the list of trips associated with the User by invoking the \texttt{/api/v1/trips/history/list} API endpoint, which is forwarded by the API Gateway to the \texttt{TripHistoryManager}. The \texttt{TripHistoryManager} queries the \texttt{RawDataDBMS} to retrieve all stored trips belonging to the User.
+
+If no trips are available, the system displays an empty list together with an informative message. Otherwise, the list of available trips is shown to the User, who can select one of them to inspect its details.
+
+When a trip is selected, the Client App invokes the \texttt{/api/v1/trips/history/getDetails} API endpoint to retrieve the full trip data, including its associated contributions. The retrieved information is displayed to the User.
+
+If the selected trip has no associated contributions, the system simply shows the trip data without triggering any further action. If contributions are present, the User may choose to publish them. In this case, the system iteratively processes each contribution, publishing them one at a time. Each publication generates an asynchronous event that is forwarded to the Kafka message broker, allowing the Data Aggregation Service to incrementally merge the contribution data and update the routing graph according to the defined merging and update policies.
+
+Once all selected contributions have been processed, control is returned to the trip view, allowing the User to continue browsing the application.
+
+\newpage
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=1\linewidth]{DD/Images/sd/sd_viewhistory.png}
+         \caption{View Trip History}
+         \label{fig:view_trip_history_sd}
+     \end{center}
+\end{figure}
+
+\newpage
+
+
+\subsubsection*{SD\cuc. Publish Contribution}
+\label{subsubsec:publish_contribution_sd}
+
+This use case describes the asynchronous processing and merging of a Contribution into the routing graph. It is not directly initiated by the User, but is triggered by other use cases (e.g., viewing the trip history or publishing an automatic or manual trip) when a Contribution is marked as public. Upon publication, the producing service emits a \texttt{ContributionPublishedEvent} to the Kafka message broker.
+
+The Data Aggregation Service periodically consumes events from Kafka and retrieves the corresponding Contribution data from the \texttt{RawDataDBMS}. The ContributionAnalyzer component first validates the Contribution, ensuring that all mandatory data is present and that the spatial and temporal information is consistent. If the Contribution is not valid, the process is aborted and the merge status of the Contribution is marked as \texttt{FAILED}, without modifying any existing path information.
+
+If the Contribution is valid, the Data Aggregation Service retrieves all existing Contributions referring to the same street or path segment from the \texttt{RawDataDBMS}. The RelevanceEngine then filters the retrieved data, discarding outliers and selecting only the most relevant Contributions according to predefined criteria such as severity, frequency, and recency.
+
+The GraphWeightUpdater applies a weighted incremental aggregation policy to merge the new Contribution with the existing information and updates the corresponding segment weight in the \texttt{RoutingDBMS}. This approach allows the routing graph to be updated incrementally and efficiently, without reprocessing the entire dataset.
+
+Finally, upon successful completion of the merge process, the Contribution is marked as \texttt{MERGED} in the \texttt{RawDataDBMS}. Publishing a Contribution and merging it into the routing graph are treated as two distinct concerns: publication is the result of an explicit User action, while merging is handled asynchronously by the system to ensure scalability, responsiveness, and eventual consistency of the routing data.
+
+\newpage
+
+\begin{figure}[H]
+    \begin{center}
+         \includegraphics[width=1\linewidth]{DD/Images/sd/sd_publishcontribution.png}
+         \caption{Publish Contribution}
+         \label{fig:publish_contribution_sd}
+     \end{center}
+\end{figure}
+
+\newpage
