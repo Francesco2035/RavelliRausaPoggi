@@ -1,0 +1,73 @@
+\section{Used Tools}
+\label{sec:used_tools}
+
+\begin{itemize}
+    \item \textbf{Overleaf}: LaTeX collaborative writing.
+    \item \textbf{SequenceDiagram.com with IntelliJ IDEA plugin}: sequence diagrams.
+    \item \textbf{Lucidchart}: all other diagrams.
+    \item \textbf{Figma}: UI Interfaces.
+    \item \textbf{ChatGPT}: AI-assisted support.
+\end{itemize}
+
+\subsection{Use of ChatGPT}
+\label{subsec:chatgpt}
+
+\begin{itemize}
+    \item \textbf{Textual Refinement}: Used to assist in refining the English grammar, vocabulary, and flow of the document. It is important to note that all architectural decisions, concepts, and logic are original to the authors; the AI tools served solely to rephrase and polish the author-generated content.
+    
+    \item \textbf{Graphic Assets Generation}: Used to generate specific service icons for the High-Level Architecture diagram (Section 2.1), as suitable representations were not available in the Lucidchart library.
+    
+    \item \textbf{\LaTeX{} Support}: Provided assistance with complex formatting and syntax debugging.
+    
+\item \textbf{Sequence Diagram Generation}: Used to accelerate the initial creation of sequence diagrams by converting detailed textual descriptions of the Use Cases (derived from the Requirements Analysis) into code compatible with the IntelliJ IDEA Sequence Diagram plugin. 
+The generated code served as a preliminary draft; the authors manually reviewed and refined the diagrams to ensure consistency with the system architecture and correct component interactions.
+    
+    Some notable prompts used were:
+    
+    \begin{itemize}
+        \item \textbf{Sequence Diagram Generation (Example: Sign Up)}
+        \begin{itemize}
+            \item \textbf{Input}: "Given the context of the Design Document provided so far, generate the code for the IntelliJ Sequence Diagram plugin based on the following description: 
+            
+            \textit{The User initiates the sign-up process by clicking the 'Sign Up' button on the homepage of the ClientApp and submitting the required registration data through the /api/v1/authentication/login interface. The request is forwarded by the API Gateway to the SecurityManager, which validates the completeness and correctness of the submitted information, including password security requirements. [...] If the verification link expires before being used, the SecurityManager invalidates the link and removes the previously stored unverified account data from the SecurityDBMS, forcing the User to repeat the registration process.}"
+            
+            \item \textbf{Output}: 
+\begin{verbatim}
+title SD1. Sign Up
+
+actor User
+participant "Client App" as App
+participant "API Gateway" as GW
+participant "Security Manager" as SM
+participant "Profile Manager" as PM
+participant "Mailing Service" as MS
+database "Security DBMS" as SDB
+database "Profiles DBMS" as PDB
+
+== Registration Request ==
+User->App: Click "Sign Up"
+activate App
+App->User: Show registration form
+deactivate App
+User->App: Insert email, password...
+... [Rest of the generated code] ...
+\end{verbatim}
+        \end{itemize}
+
+        \item \textbf{Text Refinement}
+        \begin{itemize}
+            \item \textbf{Input}: "Rewrite the following paragraph to be more formal and suitable for a Software Engineering Design Document: [Draft text in Italian/English]"
+            \item \textbf{Output}: " [Refined and polished English text] "
+        \end{itemize}
+        
+        \item \textbf{Image Generation}
+        \begin{itemize}
+            \item \textbf{Input}: "Generate a flat, modern icon representing a 'Trip & Contribution Service' for a software architecture diagram."
+            \item \textbf{Output}: [Generated Image File]
+        \end{itemize}
+
+    \end{itemize}
+
+\end{itemize}
+%o comunque fatela come volete, magari mettete una roba generale pe rdire tutte le cose pensate sono nestre, chat ha solo riformulato. poi dite anche che le immagini dei servizi che vedete nel diagram dell'overviere capitolo 2.1 mi pare sono state generate con chat perchè su lucidchart non erano presenti.
+%dite che ha aiutato con latex, e soprattutto mettete bene la parte dei sequence

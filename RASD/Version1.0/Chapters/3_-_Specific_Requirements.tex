@@ -64,7 +64,7 @@ Figure 3.5 shows the interface displayed after stopping the automatic trip detec
     \end{center}
 \end{figure}
 
-Figure 3.6 can be accessed by pressing the ``+'' icon in the bottom navigation bar, allowing the user to create a trip manually. In this interface, the user may build a route by entering the names of the streets or by selecting their beginning and end points by clicking directly on the map and choosing an existing path between the two points. The blue lines represent the selected street segments, while the pins indicate any contributions associated with the trip. Once the trip has been created, the user may save it in their trip history by pressing the \textit{Save} button, and they may also choose to publish it immediately through the popup that appears after saving. Alternatively, the user can publish the trip directly without saving it in their history by pressing the \textit{Post} button.
+Figure 3.6 can be accessed by pressing the ``+'' icon in the bottom navigation bar, allowing the user to create a trip manually. In this interface, the user may build a route by entering the names of the streets or by selecting their beginning and end points by clicking directly on the map and choosing an existing path between the two points. The blue lines represent the selected street segments. Once the route has been created, the user may continue forward to add the detections by pressing the \textit{Confirm path} button. In the following screen after having added the desired detections the user has the ability to either save the trip in his history or to directly post it as a contribution without saving it in his account.
 
 
 \subsection{Hardware Interfaces}
@@ -589,36 +589,41 @@ The system shall support reliable and secure communication mechanisms enabling i
 \begin{center}
     \begin{longtable}{|l|p{0.75\linewidth}|}
         \hline
-        \textbf{Actor}            & Registered User \\
+        \textbf{Actor}            
+        & Registered User \\
         \hline
-        \textbf{Entry Conditions} & The Registered User is logged into the platform and has a device with GPS and motion sensors enabled. \\
+        \textbf{Entry Conditions} 
+        & The Registered User is logged into the platform and has a device with GPS and motion sensors enabled. \\
         \hline
         \textbf{Flow of Events}    
         & \cucsteps. The User presses the ``Start recording'' button to begin an automatic trip. \\
-        & \cucsteps. The system initializes a new \textit{RecordingSession}. \\
+        & \cucsteps. The system initializes a new \textit{RecordingSession} on the Client device. \\
         & \cucsteps. The system starts GPS tracking and activates accelerometer and gyroscope monitoring. \\
-        & \cucsteps. While the recording is active, the system periodically acquires GPS samples and motion sensor data. \\
-        & \cucsteps. For each batch of sensor data, the system applies inference algorithms to detect potential obstacles (e.g., potholes, bumps) and, when a relevant pattern is recognized, creates a draft Contribution associated with the current path segment. \\
-        & \cucsteps. In parallel, the system monitors the User's movement to detect interruptions: it compares the current GPS position with the previous one and, if the distance travelled is below a movement threshold for a configurable time window, it marks the User as stationary; when movement resumes, the stationary status is cleared. \\
-        & \cucsteps. This logic, represented in the activity diagram, captures both obstacle detection through sensor inference and the automatic identification of stops and resumptions during the trip. \\
-        & \cucsteps. The recording continues until the system receives an ``end recording'' event from the User. \\
-        & \cucsteps. When the recording is stopped, the system stops GPS and motion sensors. \\
-        & \cucsteps. The system reconstructs the full path of the trip from the collected GPS trace and calculates trip statistics (e.g., distance, average speed). \\
-        & \cucsteps. The system may optionally invoke \hyperref[sec:uc_enrich_trip_weather]{\uline{UC.~Enrich Trip with Weather Information}} to enrich the trip with external    weather data associated with the GPS trace. \\
-
-        & \cucsteps. The system redirects the User to the ``Review and edit'' screen and includes \hyperref[sec:uc_edit_trip]{\uline{UC.~Edit Trip}} so that the User can review the automatically generated trip, edit its path if needed, and decide how to handle the associated Contributions. \\
+        & \cucsteps. While the recording is active, the system periodically acquires GPS samples and motion sensor data, storing them locally as raw trip data. \\
+        & \cucsteps. In parallel, the system monitors the User’s movement to detect interruptions: consecutive GPS positions are compared and, if the distance travelled remains below a configurable threshold for a given time window, the User is marked as stationary; when movement resumes, the stationary status is cleared. \\
+        & \cucsteps. This logic, represented in the activity diagram, allows the system to identify stops and resumptions during the trip without performing semantic inference on the collected sensor data. \\
+        & \cucsteps. The recording continues until the system receives an ``End recording'' event from the User. \\
+        & \cucsteps. When the recording is stopped, the system stops GPS and motion sensors and finalizes the collection of raw trip data. \\
+        & \cucsteps. The system reconstructs the full path of the trip from the collected GPS trace. \\
+        & \cucsteps. Immediately after the recording phase, the system performs an inference process on the collected sensor data in order to generate a set of \textit{draft Contributions} associated with the reconstructed path. These Contributions are not published nor merged at this stage and are intended solely for User review. \\
+        & \cucsteps. The system invokes the Data Enrichment Service, which computes aggregated trip statistics (e.g., distance, duration, speed profiles) and enriches the trip with external contextual information, such as weather data associated with the GPS trace, as described in \hyperref[sec:uc_enrich_trip_weather]{\uline{UC.~Enrich Trip with Weather Information}}. \\
+        & \cucsteps. The system redirects the User to the ``Review and edit'' screen and includes \hyperref[sec:uc_edit_trip]{\uline{UC.~Edit Trip}}, allowing the User to inspect the automatically generated trip, modify its path if necessary, and edit, remove, or add Contributions before making any decision about saving or publishing the trip. \\
         \hline
-        \textbf{Exit Conditions}   & An automatic trip has been recorded with its reconstructed path, computed statistics, and a set of draft Contributions inferred from sensor data and detected interruptions; control is passed to the manual review/edit phase.\\
+        \textbf{Exit Conditions}   
+        & An automatic trip has been recorded with its reconstructed path, a set of draft Contributions generated through post-processing inference, and enriched contextual and statistical information; control is transferred to the manual review and editing phase. \\
         \hline
-        \textbf{Exceptions}       & {%
+        \textbf{Exceptions}       
+        & {%
             \begin{itemize}[leftmargin=*]
-                \item Sensors or GPS are not available or cannot be started: the system notifies the User and does not start the automatic recording.
-                \item A temporary error occurs while acquiring sensor data: the system attempts to continue with partial data and informs the User that some parts of the trip may be incomplete.
+                \item GPS or motion sensors are not available or cannot be started: the system notifies the User and does not start the automatic recording.
+                \item A temporary error occurs while acquiring sensor data: the system attempts to continue recording with partial data and informs the User that some portions of the trip may be incomplete.
             \end{itemize}
         } \\
         \hline
     \end{longtable}
 \end{center}
+
+
 
 
 

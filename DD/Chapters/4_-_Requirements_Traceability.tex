@@ -1,0 +1,179 @@
+\section{Functional Requirements Traceability}
+\label{sec:functional_requirements_traceability}
+
+The following table maps the functional requirements defined in the RASD document to the components identified in the Component Diagram. Requirements are reported verbatim as defined in the RASD. When a requirement describes a complex or cross-cutting behavior, it is intentionally mapped to multiple components that cooperatively contribute to its fulfillment. External systems are included in the mapping when they provide essential support to the realization of a requirement.
+For requirements involving the publication and consolidation of contributions, the addition of information to the public dataset is performed asynchronously through event-driven processing.
+
+
+\begin{center}
+\begin{longtable}{p{0.30\linewidth}p{0.70\linewidth}}
+\hline
+\textbf{Component} & \textbf{Mapped Requirements} \\
+\hline
+
+\textbf{SecurityManager} &
+[R1] Upon request, the system shall allow a new User to sign up to the platform, as long as all required personal information is provided and no existing account is associated with the submitted email. \\
+& [R2] Upon request, the system shall allow the User to log into the platform, as long as authentication succeeds, and access to his personal profile. \\
+\hline
+
+
+\textbf{ProfileManager} &
+[R3] Upon request, the system shall allow a Registered User to update their profile information, as long as all necessary data is provided. \\
+& [R4] Whenever a Registered User updates their preferences, the system shall store these changes and apply them to future personalized route recommendations. \\
+\hline
+
+\textbf{AutomaticTripProcessor} &
+[R5] Upon request, the system shall allow a Registered User to manually start recording a trip, as long as GPS permissions are granted. \\
+& [R6] Upon request, the system shall allow a Registered User to manually stop a trip that was previously started. \\
+& [R7] Whenever an automatic trip is recorded, the system shall store the trip with its GPS track, timestamps, speed data and contributions into the User’s trip history. \\
+& [R10] Upon completion of an automatic trip, the system shall present the detected path and all detected obstacles to the User, requesting confirmation or correction. \\
+& [R11] Whenever a Registered User confirms or corrects automatically detected information, the system shall convert such detections into contributions associated with the current path. \\
+& [R16] Upon request, the system shall allow a Registered User to publish any of their contributions (manual or confirmed automatic) that are currently in draft state. \\
+& [R18] Whenever a recently completed automatic trip ends and its detections are validated, the system shall offer the User an immediate option to publish the contributions generated from that trip. \\
+\hline
+
+\textbf{InferenceEngine} &
+[R9] Whenever automatic detection identifies a potential obstacle, the system shall generate a detection item and store it in the User’s trip session. \\
+\hline
+
+\textbf{DataEnrichmentEngine} &
+[R8] Whenever an Automatic Trip is stored, the system shall compute statistics such as total distance, average speed, travel time, and other performance metrics. \\
+& [R35] Whenever an Automatic trip is saved, the system shall request weather information (temperature, wind speed, weather conditions) from an external service based on trip time and location. \\
+& [R36] Whenever weather data is retrieved, the system shall associate it with the corresponding trip summary. \\
+\hline
+
+\textbf{ManualReportManager} &
+[R12] Upon request, the system shall allow a Registered User to manually create a Manual trip by specifying the StreetSegments they have cycled through, without using sensor data and without computing trip statistics. \\
+& [R13] Upon request, the system shall allow a Registered User to manually create a contribution describing information about a specific StreetSegment, regardless of whether it is associated with a manually created trip. \\
+& [R14] Upon request, the system shall allow a Registered User to publish any of their manual contributions from a stored trip not yet published. \\
+& [R16] Upon request, the system shall allow a Registered User to publish any of their contributions (manual or confirmed automatic) that are currently in draft state. \\
+\hline
+
+\textbf{TripHistoryManager} &
+[R15] Upon request, the system shall show a Registered User the statistics and contributions of any of their stored trips. \\
+\hline
+
+\textbf{ContributionAnalyzer} &
+[R21] At configurable time intervals, the system shall aggregate all published contributions
+referring to the same StreetSegment, taking into account data recency, number of supporting contributions, and type of Information, in order to update the StreetSegment’s merged
+information, score, and bike-path status. \\
+\hline
+
+\textbf{MapMatchingEngine} &
+[R19] Whenever a published contribution contains standard Information (e.g., obstacles, roadworks, warnings) about a StreetSegment that is currently considered a bike path, the system shall merge such Information into the StreetSegment’s aggregated data used for routing and scoring. \\
+& [R20] Whenever a published contribution contains BikePathSuitability Information about a StreetSegment, the system shall store it and consider it in the periodic aggregation of bike-path suitability for that StreetSegment. \\
+& [R21] At configurable time intervals, the system shall aggregate all published contributions referring to the same StreetSegment. \\
+& [R22] Whenever a published contribution contains only standard Information about a StreetSegment that is not currently marked as a bike path, the system shall discard such Information for aggregation purposes and shall not use it to update that StreetSegment. \\
+\hline
+
+\textbf{RelevanceEngine} &
+[R21] At configurable time intervals, the system shall aggregate all published contributions
+referring to the same StreetSegment, taking into account data recency, number of supporting contributions, and type of Information, in order to update the StreetSegment’s merged
+information, score, and bike-path status \\
+& [R23] Whenever the aggregated BikePathSuitability Information for a StreetSegment exceeds a configurable positive threshold, the system shall mark that StreetSegment as a bike path; whenever it falls below a configurable negative threshold, the system shall unmark that StreetSegment as a bike path. \\
+& [R33] Whenever the aggregated BikePathSuitability for a StreetSegment no longer satisfies the suitability criteria for cycling, the system shall unmark that StreetSegment as a bike path and treat it as a regular street segment. \\
+\hline
+
+\textbf{GraphWeightUpdater} &
+[R19]  Whenever a published contribution contains standard Information (e.g., obstacles, roadworks, warnings) about a StreetSegment that is currently considered a bike path, the system
+shall merge such Information into the StreetSegment’s aggregated data used for routing and scoring. \\
+&[R21] At configurable time intervals, the system shall aggregate all published contributions
+referring to the same StreetSegment, taking into account data recency, number of supporting contributions, and type of Information, in order to update the StreetSegment’s merged
+information, score, and bike-path status\\
+& [R34] Whenever the bike-path status or aggregated condition of one or more StreetSegments changes, subsequent route computations shall use the updated information. \\
+\hline
+
+\textbf{Path Planner} &
+[R25] Upon request, the system shall allow the User to specify an origin and a destination for
+route lookup. \\
+& [R26] Whenever the system receives an origin and a destination, it shall compute candidate Paths by running a routing algorithm over the StreetSegments that are currently marked as bike paths. \\
+& [R27] Whenever the system receives an origin and a destination, it shall display the top 5 candidate Paths ranked by score. \\
+& [R28] If no fully bike-path-only route exists between the selected origin and destination, the
+system shall still display the map with all available bike-path StreetSegments highlighted,
+allowing the User to inspect partial bike-path options. \\
+& [R31] Whenever a Registered User requests a route, the system shall tailor the ranking of available paths according to the User’s saved preferences. \\
+& [R32] Whenever path scoring is computed, the system shall consider path condition, number and type of obstacles, consensus level from contributions, efficiency toward destination, and traffic comfort indicators. \\
+& [R34] Whenever the bike-path status or aggregated condition of one or more StreetSegments changes, subsequent route computations shall use the updated information. \\
+
+\hline
+
+\textbf{MapDiscoveryManager} &
+[R24] Upon request, the system shall allow any User (registered or unregistered) to browse the map and visually inspect all StreetSegments currently marked as bike paths. \\
+& [R29] Upon request, the system shall show detailed information about a selected Path, including the sequence of StreetSegments, their status, obstacles, and the aggregated user contributions associated with them. \\
+& [R30] The system shall visually highlight on the map only those StreetSegments that are
+currently marked as bike paths, distinguishing them from regular street segments. \\
+\hline
+
+\textbf{Kafka Message Broker} &
+[R17] Whenever a Registered User publishes a contribution, the system shall add all its Information items to the public dataset associated with the corresponding StreetSegment. \\
+\hline
+
+\textbf{External Map Service} &
+[R24] Upon request, the system shall allow any User (registered or unregistered) to browse the map and visually inspect all StreetSegments currently marked as bike paths. \\
+& [R25] Upon request, the system shall allow the User to specify an origin and a destination for route lookup. \\
+& [R26] Whenever the system receives an origin and a destination, it shall compute candidate Paths by running a routing algorithm over the StreetSegments that are currently marked as bike paths. \\
+& [R29] Upon request, the system shall show detailed information about a selected Path, including the sequence of StreetSegments, their status, obstacles, and the aggregated user contributions associated with them. \\
+\hline
+
+\textbf{Weather Service (External System)} &
+[R35] Whenever an Automatic trip is saved, the system shall request weather information (temperature, wind speed, weather conditions) from an external service based on trip time and location. \\
+& [R36] Whenever weather data is retrieved, the system shall associate it with the corresponding trip summary. \\
+\hline
+
+\textbf{Mailing Service (External System)} &
+[R1] Upon request, the system shall allow a new User to sign up to the platform, as long as all required personal information is provided and no existing account is associated with the submitted email. \\
+\hline
+
+\caption{Mapping between Functional Requirements and System Components.}
+\label{tab:map_comp_req}
+\end{longtable}
+\end{center}
+
+\newpage
+
+\section{Non-Functional Requirements Traceability}
+\label{sec:non_functional_requirements_traceability}
+
+\subsection{Performance Requirements}
+\label{subsec:performance_requirements}
+
+The performance requirements defined in Section 3.3 \textit{Performance Requirements} of the RASD are satisfied through specific architectural and design decisions adopted in the BBP system.
+
+First, the mobile client is intentionally designed as a lightweight component. Its responsibilities are limited to user interaction management, map rendering, and acquisition of GPS and sensor data from the device. Computationally intensive operations, such as map matching, contribution merging, and route computation, are delegated to backend services. This separation allows the system to provide a responsive user interface and to support real-time trip recording without application freezes or noticeable delays, as required by the RASD.
+
+The merge process of user contributions, which is particularly computationally expensive due to repeated map matching and aggregation operations, is handled asynchronously through a message broker. This design choice decouples heavy processing from synchronous user requests and allows merge operations to be executed outside peak load periods. As a result, system responsiveness is preserved even under high traffic conditions.
+
+Scalability requirements, including the ability to handle up to 15,000 concurrent users, are addressed through the presence of an orchestrator managing the backend services. The orchestrator enables horizontal scaling and elastic resource allocation, dynamically adapting the number of service instances based on the current workload. This ensures that core functionalities, such as map visualization, path computation, and trip recording, remain available without significant performance degradation.
+
+Route computation efficiency is further improved by adopting a custom graph-based data model that includes only relevant street segments. This representation allows the use of efficient pathfinding algorithms, such as A*, with a domain-specific heuristic based on edge weights that reflect the status and quality of street segments. By operating on a reduced and specialized graph, the system significantly lowers computational complexity and improves response times for path search operations.
+
+To further optimize performance, caching mechanisms are introduced, particularly for map matching results and frequently accessed street segments. By reusing previously computed mappings for commonly traversed areas, the system reduces the number of external API calls and avoids redundant computations, leading to faster processing of new contributions.
+
+During automatic trip recording, raw sensor and GPS data are immediately persisted and transmitted to the backend without requiring synchronous execution of map matching or merge operations. These tasks are performed asynchronously, ensuring uninterrupted data acquisition on the client side and preventing data loss under varying network conditions.
+
+Finally, asynchronous data synchronization guarantees that uploaded trips and contributions become available to users within a bounded and controlled time after upload completion. In particular, the adopted design ensures that newly recorded data is processed and made accessible within 30 seconds, in compliance with the synchronization timeliness requirement specified in the RASD.
+
+
+\subsection{Software System Attributes}
+\label{subsec:software_system_attributes}
+
+The software system attributes introduced in Section 3.5 \textit{Software System Attributes} of the RASD are achieved through a combination of architectural decisions and runtime mechanisms specifically designed for a mobile-centered and distributed system such as BBP. The following paragraphs describe how these attributes are supported by the proposed design.
+
+\begin{itemize}
+
+\item \textbf{Reliability:}  
+The reliability of the BBP system is ensured by decoupling critical data acquisition from backend processing. Trip data and sensor readings are collected and temporarily stored on the mobile device, allowing recording activities to continue even in the presence of temporary network disruptions or application restarts. Backend services process uploaded data asynchronously, reducing the impact of transient failures. Furthermore, service replication and automated recovery mechanisms managed by the orchestration platform increase fault tolerance, enabling the system to continue operating and to degrade gracefully when partial failures occur.
+
+\item \textbf{Availability:}  
+System availability is supported through the replication and horizontal scaling of backend services, which are dynamically managed to handle variations in workload. In addition, the mobile application follows an offline-first approach: core functionalities such as trip recording and local data visualization remain usable even when backend services are temporarily unreachable. Once connectivity is restored, deferred synchronization ensures consistency without requiring user intervention.
+
+\item \textbf{Security:}  
+Security is achieved by enforcing authentication and authorization mechanisms based on secure access tokens for all interactions with backend APIs. Communication between the mobile client and the backend is protected using encrypted channels based on HTTPS and TLS. Access to sensitive device resources, such as location and motion sensors, is explicitly controlled through user-granted permissions in accordance with the underlying mobile operating system security model.
+
+\item \textbf{Maintainability:}  
+Maintainability is promoted by structuring the backend as a set of independent services, each responsible for a well-defined subset of system functionalities. This modular organization allows individual services to be modified, extended, or replaced with minimal impact on the rest of the system. z
+
+\item \textbf{Portability:}  
+Portability is ensured by designing the mobile client to support multiple operating systems, namely Android and iOS, while isolating platform-specific components from the core application logic. On the backend side, services are deployed using containerized technologies and communicate through standardized, technology-agnostic interfaces. This combination enables the system to be deployed and migrated across different execution environments with limited adaptation effort.
+
+\end{itemize}

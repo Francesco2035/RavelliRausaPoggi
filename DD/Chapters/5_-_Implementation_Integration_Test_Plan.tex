@@ -1,0 +1,75 @@
+\section{Overview}
+This section outlines the strategy for the development, integration, and testing of the \textit{Best Bike Paths} (BBP) system. 
+Given the architectural choice of a microservices-inspired system supported by a four-tier structure (as detailed in Chapter 2), the implementation and integration phases are not distinct, sequential blocks. Instead, they are intertwined processes designed to maximize efficiency and allow parallel development.
+
+The modular nature of the system—comprising distinct components like the \textit{Automatic Trip Processor}, \textit{Data Aggregation Service}, and \textit{Map Service}—allows different development teams to work simultaneously on different "bounded contexts." However, this independence necessitates a rigorous integration testing strategy to ensure that the asynchronous communication via the Kafka Message Broker and the synchronous REST API interactions function correctly.
+
+The testing process will follow a bottom-up approach: starting from Unit Testing of individual components, moving to Integration Testing between interacting services, and culminating in System (End-to-End) Testing to validate the requirements defined in the RASD.
+
+\section{Development Plan}
+The development plan is structured to prioritize the critical path of the application: the ability to ingest data, process it to update the road network state, and serve this data to the user. The components are grouped into logical subsystems to be implemented in the following order:
+
+\subsection{Phase 1: Infrastructure and Core Services}
+The foundation of the system must be established first to handle user identity and request routing.
+\begin{itemize}
+    \item \textbf{Infrastructure Setup:} Deployment of the \textit{API Gateway} (NGINX), the \textit{Kafka Message Broker}, and the configuration of the DBMS instances (\textit{SecurityDBMS}, \textit{ProfileDBMS}, \textit{RawDataDBMS}, \textit{RoutingDBMS}).
+    \item \textbf{User Management:} Implementation of the \textbf{Security Manager} and \textbf{Profile Manager}. These are prerequisites for any other operation since all interactions (trip recording, reporting) require an authenticated \textit{Registered User}.
+\end{itemize}
+\textit{Testing Focus:} Verification of token generation/validation and correct routing of requests through the Gateway.
+
+\subsection{Phase 2: Data Acquisition (The "Write" Side)}
+Without data, the platform offers no value. This phase focuses on the mobile client and the ingestion services.
+\begin{itemize}
+    \item \textbf{Mobile Application (Sensor Logic):} Implementation of the local recording logic, sensor data buffering (GPS, accelerometer), and local interruption detection.
+    \item \textbf{Trip Processing:} Development of the \textbf{Automatic Trip Processor} and \textbf{Manual Report Manager}. This includes the \textit{Inference Engine} for detecting obstacles from raw sensor data and the \textit{TripData Enricher} for fetching weather data.
+\end{itemize}
+\textit{Testing Focus:} Simulation of sensor data streams to verify obstacle detection algorithms and load testing the ingestion endpoints to ensure they can handle high concurrency.
+
+\subsection{Phase 3: Data Aggregation (The Core Business Logic)}
+This is the most critical and complex subsystem, distinguishing BBP from standard mapping tools. It should receive significant development resources.
+\begin{itemize}
+    \item \textbf{Data Aggregation Service:} Implementation of the \textbf{Contribution Analyzer}, \textbf{Map Matching Engine}, and \textbf{Relevance Engine}.
+    \item \textbf{Graph Updates:} Development of the \textbf{Graph Weight Updater} to modify the \textit{RoutingDBMS} based on the merged contributions.
+\end{itemize}
+\textit{Testing Focus:} Validation of the merging algorithms (e.g., ensure that multiple reports of a pothole converge into a single confirmed obstacle) and verification of the asynchronous consumption of events from Kafka.
+
+\subsection{Phase 4: Navigation and Visualization (The "Read" Side)}
+Once the data is reliably stored and aggregated, the consumption layer is built.
+\begin{itemize}
+    \item \textbf{Map Service:} Implementation of the \textbf{Map Discovery Manager} to overlay BBP data on the external base map.
+    \item \textbf{Routing Logic:} Development of the \textbf{Path Planner} to compute routes based on the custom weights in the \textit{RoutingDBMS}.
+\end{itemize}
+\textit{Testing Focus:} Verifying that the routes returned actually prioritize "bike-friendly" segments over standard shortest paths, complying with the aggregated scores.
+
+\section{Integration and Test Strategy}
+
+\subsection{Unit Testing}
+Each component described in the Component View will undergo strict unit testing.
+\begin{itemize}
+    \item \textbf{Inference Engine:} Tested with pre-recorded datasets of accelerometer patterns to ensure it correctly classifies potholes vs. normal riding.
+    \item \textbf{Path Planner:} Tested with graph mock-ups to verify the correctness of the routing algorithm (e.g., Dijkstra or A*) using custom weights.
+    \item \textbf{External Connectors:} Mocks will be used to simulate the \textit{Weather Service} and \textit{External Map Service} responses to handle edge cases (e.g., service unavailability) without making actual network calls.
+\end{itemize}
+
+\subsection{Integration Testing}
+Integration testing addresses the interaction between components and the persistence layer.
+\begin{itemize}
+    \item \textbf{API Contract Testing:} Verifying that the REST APIs exposed by the microservices (e.g., \texttt{/trips/automatic/submit}) adhere to the JSON schemas defined in the Design Document.
+    \item \textbf{Asynchronous Messaging Testing:} Verifying the \textit{Producer-Consumer} flow via Kafka. For example, ensuring that a \texttt{TripPublishedEvent} emitted by the \textit{Automatic Trip Processor} is correctly consumed by the \textit{Contribution Analyzer}.
+    \item \textbf{Database Integration:} Ensuring that the \textit{Map Matching Engine} correctly retrieves segments from the external provider and maps them to the internal graph representation in the \textit{RoutingDBMS}.
+\end{itemize}
+
+\subsection{System and Acceptance Testing}
+This phase validates the system against the Functional Requirements (traceability analysis).
+\begin{itemize}
+    \item \textbf{Scenario-based Testing:} End-to-end execution of the scenarios defined in the RASD. For example, a tester records a trip, reports an obstacle, publishes it, and a second tester verifies that the obstacle appears on the map and affects routing.
+    \item \textbf{User Acceptance Testing (UAT):} A beta release to a small group of cyclists to validate the usability of the mobile interface and the relevance of the "Best Path" suggestions in real-world urban environments.
+\end{itemize}
+
+%\subsection{Performance and Stress Testing}
+%To satisfy the non-functional requirements (Section 3.3 of RASD), specifically the support for 15,000 concurrent users and real-time responsiveness:
+%\begin{itemize}
+%    \item \textbf{Load Testing:} Tools like \textit{JMeter} or \textit{Locust} will be used to simulate high concurrency on the \textit{Map Service} (read-heavy) and \textit{Trip Processor} (write-heavy).
+%    \item \textbf{Stress Testing:} The system will be pushed beyond its limits to verify the \textbf{Circuit Breaker} patterns (e.g., if the Weather Service fails, the trip saving process must not crash).
+%    \item \textbf{Latency Testing:} Verifying that map rendering and route calculation occur within the defined time thresholds (2 seconds for map updates).
+%\end{itemize}

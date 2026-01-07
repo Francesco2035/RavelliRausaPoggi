@@ -6,6 +6,18 @@ The platform defines a Contribution as a structured report that associates one o
 
 The system automates key activities such as collecting sensor data from mobile devices, inferring potential obstacles, requesting user confirmation, and periodically aggregating contributions to maintain an up-to-date representation of street conditions. This aggregation follows a merge policy that weighs Information items based on their freshness, consistency, and number of independent confirmations, so that recent and widely supported reports have more influence on the segment’s state. In particular, the system evaluates specialized BikePathSuitability Information to promote or demote StreetSegments as bike paths, highlights suitable segments on the map, and uses them as the basis for route computation. Additionally, it provides tools for users to visualize recorded trips, inspect current bike paths, and obtain personalized route recommendations that reflect their preferences and the latest crowd-sourced information.
 
+The platform relies on external geographic data providers, such as OpenStreetMap, to support
+base map visualization and user navigation across the road network. These external datasets
+are used exclusively to provide the underlying cartographic representation and to assist in
+spatial operations (e.g., map matching).
+
+The internal representation of bike paths and street conditions is instead fully managed by the
+system through a dedicated graph-based data model, which is incrementally built and updated
+from user-generated Contributions. This internal graph acts as an overlay over the base map
+and represents only those StreetSegments that have been identified, validated, and aggregated
+as relevant for cycling by the system.
+
+
 
 
 \section{Definitions, Acronyms, Abbreviations}
@@ -14,7 +26,7 @@ The system automates key activities such as collecting sensor data from mobile d
 \begin{itemize}
 \item \textbf{System, Platform}: these terms are used interchangeably when referring to the system-to-be-developed (BBP).
 \item \textbf{BikePath}: a route suggested by the system that is composed only of StreetSegments currently marked as suitable for cycling.
-\item \textbf{StreetSegment}: an atomic portion of the road network between two intersections, which can be evaluated and updated independently.
+\item \textbf{StreetSegment}: an atomic portion of the road network between two intersections, which can be evaluated and updated independently. StreetSegments are identified through spatial matching against external map data and are internally represented and managed by the system.
 \item \textbf{Contribution}: a user-generated or automatically generated report containing one or more Information items about a StreetSegment.
 \item \textbf{Information}: an abstract fact attached to a Contribution (e.g., Obstacle, Roadwork, Warning, BikePathSuitability).
 \item \textbf{BikePathSuitability}: a specialized Information used to express and aggregate the suitability of a StreetSegment as part of a bike path.
@@ -43,10 +55,6 @@ UI     & User Interface \\
 \hline
 JSON   & JavaScript Object Notation  \\
 \hline
-URL    & Uniform Resource Locator  \\
-\hline
-URI    & Uniform Resource Identifier  \\
-\hline
 HTTPS  & HyperText Transfer Protocol over Secure Socket Layer   \\
 \hline
 BBP    & BikeBetterPath \\
@@ -65,7 +73,7 @@ BBP    & BikeBetterPath \\
 \hline
 UC   & Use Case \\
 \hline
-DA   & Domain Assumption \\
+SD   & Sequence Diagram  \\
 \hline
 \end{tabular}
 \caption{Abbreviations used in the document.}
@@ -96,8 +104,35 @@ DA   & Domain Assumption \\
 \section{Reference Documents}
 \label{sec:reference_documents}
 \begin{itemize}
-    \item{[\cbib]} Di Nitto, Rossi, Camilli, \textit{"A.Y. 2024-2025 Software Engineering 2 Requirement Engineering and Design Project"}, 2024.
-    \item{[\cbib]} ISO/IEC/IEEE 29148:2018, \textit{"Systems and Software Engineering — Life Cycle Processes — Requirements Engineering."}
+    \item{[\cbib]} Di Nitto, Rossi, Camilli, \textit{"A.Y. 2025-2026 Software Engineering 2 Requirement Engineering and Design Project"}, 2025.
+    \item{[\cbib]} Matteo Camilli, Elisabetta Di Nitto, Alfonso Fuggetta, Alessandro Margara, Matteo G. Rossi, Damian A. Tamburri, \textit{Software Engineering: a Structured Journey from Inception to Delivery}, Bocconi University Press, 2025, ISBN: 9791280623508
+
+    \item{[\cbib]} \href{https://learn.microsoft.com/en-us/previous-versions/msp-n-p/dn589800(v=pandp.10)#eventual-consistency}{\textcolor{blue}{\textit{Microsoft Learn, Data Consistency primer}}}
+    \label{document: data_consistency}
+    
+    \item{[\cbib]} \href{https://microservices.io/patterns/apigateway.html}{\textcolor{blue}{\textit{Chris Richardson, Microservices: API Gateway Pattern}}}
+    \label{document: api_gateway}
+    
+
+    
+    \item{[\cbib]} \href{https://learn.microsoft.com/en-us/previous-versions/msp-n-p/dn589795(v=pandp.10)#functional-partitioning}{\textcolor{blue}{\textit{Microsoft Learn, Data Partitioning guidance}}}
+    \label{document: data_partitioning}
+    
+    \item{[\cbib]} \href{https://learn.microsoft.com/en-us/dotnet/architecture/cloud-native/relational-vs-nosql-data#the-cap-theorem}{\textcolor{blue}{\textit{Microsoft Learn, Relational vs. NoSQL data}}}
+    \label{document: relational_nosql_data}
+    
+
+
+    \item{[\cbib]} \href{https://wiki.openstreetmap.org/}{\textcolor{blue}{\textit{OSM documentation}}}
+    \label{document: OSM}
+
+    \item{[\cbib]} \href{https://wiki.openstreetmap.org/wiki/Overpass_API}{\textcolor{blue}{\textit{Overpass API}}}
+    \label{document: Overpass_API}
+
+    \item{[\cbib]} \href{https://learn.microsoft.com/en-us/dotnet/architecture/cloud-native/distributed-data#database-per-microservice-why}{\textcolor{blue}{\textit{Microsoft Learn - Cloud-native data patterns}}}
+    \label{document: cloud_native_data_patters}
+
+\end{itemize}
 \end{itemize}
 
 \section{Overview}
