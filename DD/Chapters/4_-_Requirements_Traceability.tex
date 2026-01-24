@@ -5,6 +5,7 @@ The following table maps the functional requirements defined in the RASD documen
 For requirements involving the publication and consolidation of contributions, the addition of information to the public dataset is performed asynchronously through event-driven processing.
 
 
+
 \begin{center}
 \begin{longtable}{p{0.30\linewidth}p{0.70\linewidth}}
 \hline
@@ -38,19 +39,19 @@ For requirements involving the publication and consolidation of contributions, t
 
 \textbf{DataEnrichmentEngine} &
 [R8] Whenever an Automatic Trip is stored, the system shall compute statistics such as total distance, average speed, travel time, and other performance metrics. \\
-& [R35] Whenever an Automatic trip is saved, the system shall request weather information (temperature, wind speed, weather conditions) from an external service based on trip time and location. \\
-& [R36] Whenever weather data is retrieved, the system shall associate it with the corresponding trip summary. \\
+& [R34] Whenever an Automatic trip is saved, the system shall request weather information (temperature, wind speed, weather conditions) from an external service based on trip time and location. \\
+& [R35] Whenever weather data is retrieved, the system shall associate it with the corresponding trip summary. \\
 \hline
 
 \textbf{ManualReportManager} &
 [R12] Upon request, the system shall allow a Registered User to manually create a Manual trip by specifying the StreetSegments they have cycled through, without using sensor data and without computing trip statistics. \\
 & [R13] Upon request, the system shall allow a Registered User to manually create a contribution describing information about a specific StreetSegment, regardless of whether it is associated with a manually created trip. \\
-& [R14] Upon request, the system shall allow a Registered User to publish any of their manual contributions from a stored trip not yet published. \\
+& [R15] Upon request, the system shall allow a Registered User to publish any of their manual contributions from a stored trip not yet published. \\
 & [R16] Upon request, the system shall allow a Registered User to publish any of their contributions (manual or confirmed automatic) that are currently in draft state. \\
 \hline
 
 \textbf{TripHistoryManager} &
-[R15] Upon request, the system shall show a Registered User the statistics and contributions of any of their stored trips. \\
+[R14] Upon request, the system shall show a Registered User the statistics and contributions of any of their stored trips. \\
 \hline
 
 \textbf{ContributionAnalyzer} &
@@ -71,7 +72,7 @@ information, score, and bike-path status. \\
 referring to the same StreetSegment, taking into account data recency, number of supporting contributions, and type of Information, in order to update the StreetSegment’s merged
 information, score, and bike-path status \\
 & [R23] Whenever the aggregated BikePathSuitability Information for a StreetSegment exceeds a configurable positive threshold, the system shall mark that StreetSegment as a bike path; whenever it falls below a configurable negative threshold, the system shall unmark that StreetSegment as a bike path. \\
-& [R33] Whenever the aggregated BikePathSuitability for a StreetSegment no longer satisfies the suitability criteria for cycling, the system shall unmark that StreetSegment as a bike path and treat it as a regular street segment. \\
+
 \hline
 
 \textbf{GraphWeightUpdater} &
@@ -80,27 +81,28 @@ shall merge such Information into the StreetSegment’s aggregated data used for
 &[R21] At configurable time intervals, the system shall aggregate all published contributions
 referring to the same StreetSegment, taking into account data recency, number of supporting contributions, and type of Information, in order to update the StreetSegment’s merged
 information, score, and bike-path status\\
-& [R34] Whenever the bike-path status or aggregated condition of one or more StreetSegments changes, subsequent route computations shall use the updated information. \\
+& [R24] Whenever the bike-path status or aggregated condition of one or more StreetSegments changes, subsequent route computations shall use the updated information. \\
 \hline
 
 \textbf{Path Planner} &
-[R25] Upon request, the system shall allow the User to specify an origin and a destination for
+[R24] Whenever the bike-path status or aggregated condition of one or more StreetSegments changes, subsequent route computations shall use the updated information. \\
+& [R26] Upon request, the system shall allow the User to specify an origin and a destination for
 route lookup. \\
-& [R26] Whenever the system receives an origin and a destination, it shall compute candidate Paths by running a routing algorithm over the StreetSegments that are currently marked as bike paths. \\
-& [R27] Whenever the system receives an origin and a destination, it shall display the top 5 candidate Paths ranked by score. \\
-& [R28] If no fully bike-path-only route exists between the selected origin and destination, the
+& [R27] Whenever the system receives an origin and a destination, it shall compute candidate Paths by running a routing algorithm over the StreetSegments that are currently marked as bike paths. \\
+& [R28] Whenever the system receives an origin and a destination, it shall display the top 5 candidate Paths ranked by score. \\
+& [R29] If no fully bike-path-only route exists between the selected origin and destination, the
 system shall still display the map with all available bike-path StreetSegments highlighted,
 allowing the User to inspect partial bike-path options. \\
-& [R31] Whenever a Registered User requests a route, the system shall tailor the ranking of available paths according to the User’s saved preferences. \\
-& [R32] Whenever path scoring is computed, the system shall consider path condition, number and type of obstacles, consensus level from contributions, efficiency toward destination, and traffic comfort indicators. \\
-& [R34] Whenever the bike-path status or aggregated condition of one or more StreetSegments changes, subsequent route computations shall use the updated information. \\
+& [R32] Whenever a Registered User requests a route, the system shall tailor the ranking of available paths according to the User’s saved preferences. \\
+& [R33] Whenever path scoring is computed, the system shall consider path condition, number and type of obstacles, consensus level from contributions, efficiency toward destination, and traffic comfort indicators. \\
+
 
 \hline
 
 \textbf{MapDiscoveryManager} &
-[R24] Upon request, the system shall allow any User (registered or unregistered) to browse the map and visually inspect all StreetSegments currently marked as bike paths. \\
-& [R29] Upon request, the system shall show detailed information about a selected Path, including the sequence of StreetSegments, their status, obstacles, and the aggregated user contributions associated with them. \\
-& [R30] The system shall visually highlight on the map only those StreetSegments that are
+[R25] Upon request, the system shall allow any User (registered or unregistered) to browse the map and visually inspect all StreetSegments currently marked as bike paths. \\
+& [R30] Upon request, the system shall show detailed information about a selected Path, including the sequence of StreetSegments, their status, obstacles, and the aggregated user contributions associated with them. \\
+& [R31] The system shall visually highlight on the map only those StreetSegments that are
 currently marked as bike paths, distinguishing them from regular street segments. \\
 \hline
 
@@ -109,15 +111,15 @@ currently marked as bike paths, distinguishing them from regular street segments
 \hline
 
 \textbf{External Map Service} &
-[R24] Upon request, the system shall allow any User (registered or unregistered) to browse the map and visually inspect all StreetSegments currently marked as bike paths. \\
-& [R25] Upon request, the system shall allow the User to specify an origin and a destination for route lookup. \\
-& [R26] Whenever the system receives an origin and a destination, it shall compute candidate Paths by running a routing algorithm over the StreetSegments that are currently marked as bike paths. \\
-& [R29] Upon request, the system shall show detailed information about a selected Path, including the sequence of StreetSegments, their status, obstacles, and the aggregated user contributions associated with them. \\
+[R25] Upon request, the system shall allow any User (registered or unregistered) to browse the map and visually inspect all StreetSegments currently marked as bike paths. \\
+& [R26] Upon request, the system shall allow the User to specify an origin and a destination for route lookup. \\
+& [R27] Whenever the system receives an origin and a destination, it shall compute candidate Paths by running a routing algorithm over the StreetSegments that are currently marked as bike paths. \\
+& [R30] Upon request, the system shall show detailed information about a selected Path, including the sequence of StreetSegments, their status, obstacles, and the aggregated user contributions associated with them. \\
 \hline
 
 \textbf{Weather Service (External System)} &
-[R35] Whenever an Automatic trip is saved, the system shall request weather information (temperature, wind speed, weather conditions) from an external service based on trip time and location. \\
-& [R36] Whenever weather data is retrieved, the system shall associate it with the corresponding trip summary. \\
+[R34] Whenever an Automatic trip is saved, the system shall request weather information (temperature, wind speed, weather conditions) from an external service based on trip time and location. \\
+& [R35] Whenever weather data is retrieved, the system shall associate it with the corresponding trip summary. \\
 \hline
 
 \textbf{Mailing Service (External System)} &
