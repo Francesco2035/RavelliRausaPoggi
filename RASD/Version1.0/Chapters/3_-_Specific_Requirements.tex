@@ -73,11 +73,11 @@ The system shall ensure full compatibility with the hardware components involved
 
 \subsubsection*{User Devices}
 \begin{itemize}
-    \item The platform shall support access from a wide range of commonly used device such as tablet sand smartphones. %mi sembra follia mettere anche tablet ma mi sembrava restrittivo dire solo smartphones 
+    \item The platform shall support access from a wide range of commonly used device such as tablets and smartphones. %mi sembra follia mettere anche tablet ma mi sembrava restrittivo dire solo smartphones 
     
     \item The platform shall be fully usable across different screen sizes and resolutions, ensuring responsiveness and readability regardless of device type.
 
-    \item User devices shall include sufficient storage and processing capabilities to runt he mobile application, including support for caching data and executing client-side scripts.
+    \item User devices shall include sufficient storage and processing capabilities to run the mobile application, including support for caching data and executing client-side scripts.
 
     \item For devices using automatic trip detection or sensor-based functionalities, the system shall interface with hardware components such as \textbf{GPS receivers}, \textbf{accelerometers}, and \textbf{gyroscopes}. These components must be accessible to the application for acquiring motion data, trip-related information, and geolocation.% non so se ha più senso in software o in hardware ma non metterei in entrambi
     
@@ -89,11 +89,11 @@ The system shall ensure full compatibility with the hardware components involved
 The system is designed as a mobile application, capable of performing all its core functionalities without relying on essential third-party software. Nevertheless, the system shall comply with the following software interface requirements:
 
 \begin{itemize}
-    \item The system shall function correctly across the most widely adopted operating systems, including, but not limited to, \textbf{Android}, and \textbf{iOS}.
+    \item The system shall function correctly across the most widely adopted operating systems, such as \textbf{Android}, and \textbf{iOS}.
     
     \item The system shall interface with geolocation and mapping services to retrieve, compute, and display cycling routes. These services include GPS modules, map-rendering libraries, and geocoding/route-search components.
     
-    \item The system shall interface with external meteorological information providers to retrieve weather conditions relevant to trips and route safety evaluations.
+    \item The system shall interface with external meteorological information providers to retrieve weather conditions relevant to trips and route safety evaluations and with external map service providers to retrieve geographical data.
     
     \item The system shall interact with mobile device sensors, including accelerometer and gyroscope, to collect motion-related data supporting the automatic detection of obstacles and road conditions.
     
@@ -105,7 +105,7 @@ The system is designed as a mobile application, capable of performing all its co
 The system shall support reliable and secure communication mechanisms enabling interaction between client devices, backend services, and external data providers. The following requirements apply:
 
 \begin{itemize}
-    \item The system shall operate over standard Internet connections, including both wired and wireless networks such as \textbf{Ethernet}, \textbf{Wi-Fi}, and \textbf{mobile data}.
+    \item The system shall operate over standard Internet connections, such as \textbf{Wi-Fi}, and \textbf{mobile data}.
     
     \item All communication between the client and the server shall be secured through \textbf{encrypted protocols} (e.g., TLS/SSL) to protect sensitive information such as user credentials, personal data, recorded trips, and sensor-based contributions.
     
@@ -167,7 +167,7 @@ The system shall support reliable and secure communication mechanisms enabling i
         \textbf{Flow of Events}    
         & \cucsteps. On the homepage, the User clicks the ``Sign up'' button. \\
         & \cucsteps. The system displays the registration form. \\
-        & \cucsteps. The User inserts the required registration details (e.g., email, password, password confirmation and role). \\
+        & \cucsteps. The User inserts the required registration details (e.g., email, password and password confirmation). \\
         & \cucsteps. The User confirms the provided information by clicking the ``Register'' button. \\
         & \cucsteps. The system checks the completeness and validity of the submitted data. \\
         & \cucsteps. If the data is valid, the system sends a confirmation email containing a verification link that expires after 24 hours. \\
@@ -383,7 +383,7 @@ The system shall support reliable and secure communication mechanisms enabling i
         & \cucsteps. When there are no more contributions to process, the system returns control to the trip view. \\
         & \cucsteps. For readability, the activity diagram omits the fact that the User can navigate back to previous pages (trip list or other sections of the app) at any point in the interaction. \\
         \hline
-        \textbf{Exit Conditions}   & The User has viewed the selected trip and, if desired, has published some or all of the contributions associated with that trip.\\
+        \textbf{Exit Conditions}   & The User has viewed the selected trip and, if desired, has published the contributions associated with that trip.\\
         \hline
         \textbf{Exceptions}       & {%
             \begin{itemize}[leftmargin=*]
@@ -437,6 +437,12 @@ The system shall support reliable and secure communication mechanisms enabling i
         \hline
     \end{longtable}
 \end{center}
+
+\paragraph{Important Note}
+This use case describes the \emph{conceptual} behavior of the system from the perspective of the involved stakeholders.  
+In particular, it does not reflect the actual implementation details of the publication process, which, as discussed in the Design Document, is realized through an asynchronous mechanism.  
+
+The use case abstracts away such implementation aspects and focuses instead on what should logically occur and on what the registered user is expected to perceive in terms of system behavior and outcomes, regardless of the underlying execution model.
 
 
 \begin{figure}[H]
@@ -601,7 +607,6 @@ The system shall support reliable and secure communication mechanisms enabling i
         & \cucsteps. The system starts GPS tracking and activates accelerometer and gyroscope monitoring. \\
         & \cucsteps. While the recording is active, the system periodically acquires GPS samples and motion sensor data, storing them locally as raw trip data. \\
         & \cucsteps. In parallel, the system monitors the User’s movement to detect interruptions: consecutive GPS positions are compared and, if the distance travelled remains below a configurable threshold for a given time window, the User is marked as stationary; when movement resumes, the stationary status is cleared. \\
-        & \cucsteps. This logic, represented in the activity diagram, allows the system to identify stops and resumptions during the trip without performing semantic inference on the collected sensor data. \\
         & \cucsteps. The recording continues until the system receives an ``End recording'' event from the User. \\
         & \cucsteps. When the recording is stopped, the system stops GPS and motion sensors and finalizes the collection of raw trip data. \\
         & \cucsteps. The system reconstructs the full path of the trip from the collected GPS trace. \\
@@ -785,13 +790,13 @@ apart from the highlighted path on the map and the absence of route recalculatio
     \endlastfoot
 
     \crow & G1 & R1, R2, R3, R4 & DA3, DA4, DA5 & UC1, UC2, UC3, UC4, UC5 \\ \hline
-    \crow & G2 & R2, from R5 to R13, R35, R36 & DA1, DA2, DA3, DA6, DA7, DA8, DA9, DA12, & from UC10 to UC14 \\ \hline
-    \crow & G3 & R7, R8, R10, R15, R35, R36 & DA1, DA2, DA6, DA7, DA9, DA10, DA11 & UC6, UC13 \\ \hline
+    \crow & G2 & R2, from R5 to R13, R34, R35 & DA1, DA2, DA3, DA6, DA7, DA8, DA9, DA12, & from UC10 to UC14 \\ \hline
+    \crow & G3 & R7, R8, R10, R14, R34, R35 & DA1, DA2, DA6, DA7, DA9, DA10, DA11 & UC6, UC13 \\ \hline
     \crow & G4 & R2, R10, R11, R12, R13 & DA3, DA12, DA13 & UC10, UC13 \\ \hline
-    \crow & G5 & R2, R5, R6, R7, R8, R9, R10, R11, R35, R36 & DA3, DA6, DA7, DA9 DA10, DA11, & UC11, UC12, UC14 \\ \hline
-    \crow & G6 & R2, R14, from R16 to R23 & DA3 &  UC7 \\ \hline
-    \crow & G7 & from R24 to R34 & DA1, DA2, DA3, DA11 & UC8, UC9 \\ \hline
-    \crow & G8 & R19, R20, R21, R22, R23, R33, R34 & DA1, DA2, DA14, DA15 & UC7\\ %\hline
+    \crow & G5 & R2, R5, R6, R7, R8, R9, R10, R11, R34, R35 & DA3, DA6, DA7, DA9 DA10, DA11, & UC11, UC12, UC14 \\ \hline
+    \crow & G6 & R2, from R15 to R20 & DA3 &  UC7 \\ \hline
+    \crow & G7 & from R24 to R33 & DA1, DA2, DA3, DA11 & UC8, UC9 \\ \hline
+    \crow & G8 & R19, R20, R21, R22, R23, R24 & DA1, DA2, DA14 & UC7\\ %\hline
     
     %\crow & G9 & R19, R21, R33, R34 & DA1, DA8, DA9, DA10, DA15, DA16 & UC7, UC10, UC11, UC14 \\ \hline
     %\crow & G10 & R20, R21, R23, R24--R30, R33, R34 & DA1, DA2, DA8, DA9, DA10, DA12, DA15, DA16 & UC7, UC8, UC9, UC10, UC11, UC14 
