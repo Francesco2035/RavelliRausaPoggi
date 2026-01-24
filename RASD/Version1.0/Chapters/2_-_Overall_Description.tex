@@ -7,7 +7,7 @@
 
 \item \textbf{1st Scenario: User Registration and Profile Management}\\
 Elena Rossi, an avid cyclist and member of a local biking association, decides to join the BBP platform to keep track of her cycling activity and share information with other bikers. 
-Upon opening the application, she selects the \textit{Sign Up} option. BBP prompts her to enter her personal details such as name, email, and password. Once the verification process is complete, Elena accesses her personal profile page. She updates her information, adds a short description of her cycling interests, and enables location permissions. From this moment, Elena becomes a registered user, able to record her trips and contribute data about bike paths.
+Upon opening the application, she selects the \textit{Sign Up} option. BBP prompts her to enter her personal details such as name, email, and password. Once the verification process is complete, Elena accesses her personal profile page. She updates her information, modifies her preferences, and enables location permissions. From this moment, Elena becomes a registered user, able to record her trips and contribute data about bike paths.
 
 \item \textbf{2nd Scenario: Recording and Viewing a Trip with Statistics}\\
 Fausto Coppi is training for his next Tour. Fausto decides to record his rides using BBP. Before starting, he opens the app and presses \textit{Start Trip Recording}. 
@@ -18,7 +18,7 @@ Fausto later accesses his trip history, where he can review all his recorded rid
 During one of her daily rides, Federica Conti—an environmental engineering student and urban cyclist—remembers that a particular area of the city has no documented cycling paths on BBP’s map. Curious and motivated to improve the platform’s coverage, she decides to explore the zone herself.
 While riding through the neighborhood, Federica discovers a newly built cycling lane that is not yet available on BBP. Wanting to record it before she forgets, she opens the \textit{Manual insertion section} and manually inserts all the relevant details: the street names, total distance, surface quality, and current condition (e.g., Optimal). She also reports a minor obstacle: a small pothole near a crossroad.
 However, due to the lack of internet connection in that area, she is unable to upload the contribution immediately. Instead, BBP’s local storage feature allows her to save the path as a local draft associated with her account.
-Once she returns home and reconnects to the internet, the application automatically synchronizes the previously saved trip with her BBP account. After reviewing the details one more time, Federica decides to make the path public. The system then updates the platform, publishing the new cycling lane for all users to see.
+Once she returns home and reconnects to the internet, the application automatically synchronizes the previously saved trip with her BBP account. After reviewing the details one more time, Federica decides to make the path public. The system, according to its merging policy, updates the platform, publishing the new segments corresponding to the cycling lane for all users to see.
 
 
 \item \textbf{4th Scenario: Publishing a Recently Completed Path}\\
@@ -33,7 +33,7 @@ He clicks \textit{Publish}, and BBP processes the data, making it available in t
 
 \item \textbf{6th Scenario: Consulting and Choosing a Path (Registered User)}\\
 Francesco Leone, a registered cyclist who commutes daily by bike, plans a weekend trip across the city. He logs into BBP and specifies his origin and destination. 
-The system searches the database for suitable routes and displays multiple options on the map sorted by their score, considering factors such as safety, condition, and efficiency. 
+The system computes suitable routes and displays multiple options on the map sorted by their score, considering factors such as safety, condition, and efficiency. 
 Since Francesco’s profile indicates a preference for smoother surfaces and minimal traffic, BBP’s recommendation system automatically prioritizes such routes in the results. 
 After reviewing the suggested paths, Francesco finds a possibly suitable paths and decides to follow it this weekend.
 \item \textbf{7th Scenario: Consulting and Choosing a Path (Unregistered User)}\\
@@ -42,7 +42,7 @@ BBP displays all available paths but without personalized recommendations. Marta
 
 \item \textbf{8th Scenario: Updating Information on an Existing Path}\\
 During a weekly commute, Tommaso Greco, a frequent user of BBP, rides along a route previously marked as \textit{Optimal}. He notices that a section of the track has recently deteriorated and requires maintenance. 
-Once he finishes the ride, he opens BBP and selects \textit{Update Path Information}. He searches for the existing StreetSegment and updates its condition from \textit{Optimal} to \textit{Requires Maintenance}. 
+Once he finishes the ride, he opens BBP and selects \textit{Update Path Information}. He searches for the street and updates its condition from \textit{Optimal} to \textit{Requires Maintenance}. 
 The system records his update and automatically aggregates it with reports from other users who have recently traveled the same route. 
 By considering both the number of confirmations and the recency of the available data, BBP determines the most reliable current status of the path and updates its classification accordingly.
 
@@ -179,7 +179,7 @@ These statistics allow cyclists to review past activity and monitor their progre
     The recommendation engine ranks each path by score, which considers contributions, surface smoothness, obstacle frequency, and how effectively the path leads to the destination. Registered users receive more personalized suggestions based on their saved profile settings.
 
     \item \textbf{Data Aggregation and Reconciliation}\\
-    BBP aggregates contributions from multiple users who traveled the same path.
+    BBP aggregates contributions from multiple users who traveled the same StreetSegments.
     The system applies a prevalence strategy, combining the number of confirmations, recency of reports, and consistency of information to derive the most reliable status for each path segment. This aggregated evaluation determines the official condition displayed on the map.
 
     \item \textbf{Weather Data Enrichment}\\
@@ -230,13 +230,15 @@ These statistics allow cyclists to review past activity and monitor their progre
 \textbf{[R\creq]} Upon request, the system shall allow a Registered User to manually create a contribution describing information about a specific StreetSegment (e.g., obstacles or general condition), regardless of whether it is associated with a manually created trip.
 
 
-\item \textbf{[R\creq]} Upon request, the system shall allow a Registered User to publish any of their manual contributions from a stored trip not yet published.
+
 
 
 \item \textbf{[R\creq]}Upon request, the system shall show a Registered User the statistics and contributions of any of their stored trips.
 
 
-\subsubsection*{Publication and Aggregation of Contributions}
+\subsubsection*{Publication of Contributions}
+
+\item \textbf{[R\creq]} Upon request, the system shall allow a Registered User to publish any of their manual contributions from a stored trip not yet published.
 
 \textbf{[R\creq]} Upon request, the system shall allow a Registered User to publish any of their contributions (manual or confirmed automatic) that are currently in draft state.
 
@@ -248,6 +250,11 @@ These statistics allow cyclists to review past activity and monitor their progre
 
 \textbf{[R\creq]} Whenever a published contribution contains BikePathSuitability Information about a StreetSegment, the system shall store it and consider it in the periodic aggregation of bike-path suitability for that StreetSegment, regardless of its current bike-path status.
 
+
+
+
+
+\subsubsection*{Data Aggregation and Consolidation}
 \textbf{[R\creq]} At configurable time intervals, the system shall aggregate all published contributions referring to the same StreetSegment, taking into account data recency, number of supporting contributions, and type of Information, in order to update the StreetSegment’s merged information, score, and bike-path status.
 
 
@@ -262,7 +269,7 @@ StreetSegment exceeds a configurable positive threshold, the system shall mark t
 StreetSegment as a bike path; whenever it falls below a configurable negative threshold, 
 the system shall unmark that StreetSegment as a bike path.
 
-
+\textbf{[R\creq]} Whenever the bike-path status or aggregated condition of one or more StreetSegments changes, subsequent route computations shall use the updated information, so that Paths containing StreetSegments no longer suitable for cycling are no longer proposed among the best bike routes.
 
 % ----------------------------------------------------------
 
@@ -302,16 +309,7 @@ that are currently marked as bike paths, distinguishing them from regular street
 
 % ----------------------------------------------------------
 
-\subsubsection*{Data Aggregation and Consolidation}
 
-
-%\textbf{[R\creq]} At configurable time intervals, the system shall aggregate all published contributions referring to the same StreetSegment by applying a prevalence strategy that considers data recency, number of supporting contributions, and type of Information.
-
-%\textbf{[R\creq]} Whenever the aggregated BikePathSuitability for a StreetSegment satisfies the suitability criteria for cycling (e.g., presence of bike lane, low traffic, acceptable car speed), the system shall mark that StreetSegment as a bike path.
-
-\item \textbf{[R\creq]} Whenever the aggregated BikePathSuitability for a StreetSegment no longer satisfies the suitability criteria for cycling (e.g., recent contributions reporting heavy traffic or unsafe speed), the system shall unmark that StreetSegment as a bike path and treat it as a regular street segment.
-
-\textbf{[R\creq]} Whenever the bike-path status or aggregated condition of one or more StreetSegments changes, subsequent route computations shall use the updated information, so that Paths containing StreetSegments no longer suitable for cycling are no longer proposed among the best bike routes.
 
 
 
@@ -407,7 +405,7 @@ a simple and intuitive interface, accessible even to those with limited technica
     \textbf{[DA\cda]} The timestamps associated with trips and contributions reflect the actual moment in which the data was collected.
 
 
-    \textbf{[DA\cda]} When the system aggregates contributions, the recency and consistency rules are meaningful because users submit updates promptly after observing path changes.
+
 
     
 

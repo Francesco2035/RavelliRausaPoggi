@@ -67,14 +67,14 @@ var sig UnregisteredUser extends User {}
 
 var sig RegisteredUser extends User {
     // Dynamic relations tracking a user's activity
-    var contributions: set Contribution,
+    var userContributions: set Contribution,
     var trips: set Trip
 }
 
 // --- TRIPS ---
 
 var abstract sig Trip {
-    var contributions: set Contribution,
+    var tripContributions: set Contribution,
     var madeOf: set StreetSegment
 }
 
@@ -180,13 +180,13 @@ pred saveTrip[u: RegisteredUser, t: Trip] {
 
     // Postconditions
     u.trips' = u.trips + t
-    u.contributions' = u.contributions + t.contributions
+    u.userContributions' = u.userContributions + t.tripContributions
 
     all u2: RegisteredUser - u | u2.trips' = u2.trips
 
     // Frame conditions
     (Trip <: madeOf)' = (Trip <: madeOf)
-    (Trip <: contributions)' = (Trip <: contributions)
+    (Trip <: tripContributions)' = (Trip <: tripContributions)
     (Trip <: detections)' = (Trip <: detections)
 
     User' = User
@@ -207,7 +207,7 @@ pred publishContribution[u: RegisteredUser, c: Contribution] {
     PublishedContribution' = PublishedContribution + c
 
     // User and Author updates
-    (RegisteredUser <: contributions)' = (RegisteredUser <: contributions) + (u -> c)
+    (RegisteredUser <: userContributions)' = (RegisteredUser <: userContributions) + (u -> c)
     (c.author)' = u
     some c.(Contribution <: score)'
 
@@ -227,12 +227,12 @@ pred publishContribution[u: RegisteredUser, c: Contribution] {
 
 pred saveContribution[u: RegisteredUser, t: Trip, c: Contribution] {
     // Preconditions: the contribution must not be already linked
-    all u1: RegisteredUser | c not in u1.contributions
-    all t1: Trip | c not in t1.contributions
+    all u1: RegisteredUser | c not in u1.userContributions
+    all t1: Trip | c not in t1.tripContributions
 
     // Postconditions: establish the link between contribution, author, and trip
     c.author' = u
-    t.contributions' = t.contributions + c
+    t.tripContributions' = t.tripContributions + c
 
     // Frame conditions
     User' = User
@@ -245,8 +245,8 @@ pred saveContribution[u: RegisteredUser, t: Trip, c: Contribution] {
 
 pred confirmDetection[u: RegisteredUser, t: AutomaticTrip, d: Detection, c: Contribution] {
     // Preconditions: detection must be unconfirmed and belong to the user's trip
-    all u1: RegisteredUser | c not in u1.contributions
-    all t1: Trip | c not in t1.contributions
+    all u1: RegisteredUser | c not in u1.userContributions
+    all t1: Trip | c not in t1.tripContributions
     d in t.detections
     d.confirmed = False
     t in u.trips
@@ -302,7 +302,7 @@ fact StructuralConsistency {
     all t: Trip | lone u: RegisteredUser | t in u.trips
 
     // Each Contribution belongs to at most one Trip
-    all c: Contribution | lone t: Trip | c in t.contributions
+    all c: Contribution | lone t: Trip | c in t.tripContributions
 }
 
 // --- DETECTIONS & INFORMATION CONSISTENCY ---
@@ -335,12 +335,12 @@ fact detectionTripConsistency {
 fact authorConsistency {
     // If a contribution is in a user's set, that user must be the author
     always all c: Contribution, u: User |
-        c in u.contributions implies c.author = u
+        c in u.userContributions implies c.author = u
 }
 
 fact AuthorConsistency {
     // The author of a contribution must be the owner of the trip it belongs to
-    always all u: RegisteredUser, t: u.trips, c: t.contributions |
+    always all u: RegisteredUser, t: u.trips, c: t.tripContributions |
         c.author = u
 }
 
@@ -348,7 +348,7 @@ fact AuthorConsistency {
 
 fact TopologicalConsistency {
     // A contribution must refer to a segment that is part of the original trip
-    always all t: Trip, c: t.contributions |
+    always all t: Trip, c: t.tripContributions |
         c.segment in t.madeOf
 }
 
@@ -405,7 +405,7 @@ fact ConsistentContributions {
     // A user's contributions are preserved unless a new one is published
     always (
         all u: RegisteredUser | (
-            (u.contributions = u.contributions')
+            (u.userContributions = u.userContributions')
             or (some c: Contribution | publishContribution[u, c])
         )
     )
@@ -468,7 +468,7 @@ pred initialize {
     no UnregisteredUser
 
     all u: RegisteredUser | no u.trips
-    all u: RegisteredUser | no u.contributions
+    all u: RegisteredUser | no u.userContributions
     all t: Trip | no t.contributions
 
     no PathGenerate.activePaths
@@ -488,8 +488,8 @@ pred doNothing {
     madeOf' = madeOf
     activePaths' = activePaths
 
-    (Trip <: contributions)' = (Trip <: contributions)
-    (RegisteredUser <: contributions)' = (RegisteredUser <: contributions)
+    (Trip <: tripContributions)' = (Trip <: tripContributions)
+    (RegisteredUser <: userContributions)' = (RegisteredUser <: userContributions)
 
     (StreetSegment <: score)' = (StreetSegment <: score)
     (Contribution <: score)' = (Contribution <: score)
@@ -515,7 +515,7 @@ pred System {
 // --- 3. TEST SCENARIO: SAVE TRIP + CONTRIBUTION ---
 
 // Verifies the workflow: Save Trip -> Publication -> Data Merge
-pred TestScenario {
+pred ContributionLifecycle {
     some u: RegisteredUser,
          t: Trip,
          c: Contribution,
@@ -537,7 +537,7 @@ pred TestScenario {
         // Transition 2: Publication of the contribution related to segment s
         after publishContribution[u, c]
         c.segment = s
-        c in t.contributions
+        c in t.tripContributions
 
         // Transition 3: Integration of feedback into the system (Merge)
         after after merge[c]
@@ -545,12 +545,12 @@ pred TestScenario {
 }
 
 // Command to verify the consistency of the test scenario
-run TestScenario for 4 but 4 Int, 4 seq
+run ContributionLifecycle for 4 but 4 Int, 4 seq
 
 // --- 4. TEST SCENARIO: DETECTION CONFIRMATION ---
 
 // Verifies the transformation of an automatic Detection into a user contribution
-pred TestDetectionConfirmation {
+pred ConfirmAutoDetection {
     some u: RegisteredUser,
          t: AutomaticTrip,
          d: Detection,
@@ -564,11 +564,11 @@ pred TestDetectionConfirmation {
 
         // Contribution must be initially orphan
         no c.author
-        all existingT: Trip | c not in existingT.contributions
+        all existingT: Trip | c not in existingT.tripContributions
 
         // Initial state: detection not yet confirmed
         d.confirmed = False
-        no t.contributions
+        no t.tripContributions
 
         // Transition: User confirms the automatic detection
         confirmDetection[u, t, d, c]
@@ -577,7 +577,7 @@ pred TestDetectionConfirmation {
         after {
             d.confirmed = True
             one newC: Contribution | {
-                newC in t.contributions
+                newC in t.tripContributions
                 newC.author = u
                 newC.segment = s
                 newC.score = d.score
@@ -586,12 +586,12 @@ pred TestDetectionConfirmation {
     }
 }
 
-// run TestDetectionConfirmation for 2 but 2 Contribution, 2 seq
+// run ConfirmAutoDetection for 2 but 2 Contribution, 2 seq
 
 // --- 5. TEST SCENARIO: PATH INVALIDATION (SAFETY) ---
 
 // Demonstrates that a segment failure only invalidates paths containing it
-pred PathBreakScenario {
+pred PathIndependence {
     some pAffected, pSafe: Path, s: StreetSegment | {
         
         // --- STRUCTURAL SETUP ---
@@ -635,73 +635,73 @@ pred PathBreakScenario {
     }
 }
 
-// run PathBreakScenario for 4 but 2 seq, 8 StreetSegment, 8 Coordinate
+// run PathIndependence for 4 but 2 seq, 8 StreetSegment, 8 Coordinate
 \end{lstlisting}
 
 \section{Validation through the Model}
-This section presents the formal validation of the system's dynamic behavior using the Alloy Analyzer. The following instances illustrate the "Report a Road Issue" scenario, obtained by executing the \texttt{TestScenario} predicate defined in the \texttt{main.als} module.
+This section presents the formal validation of the system's dynamic behavior using the Alloy Analyzer. The following instances illustrate the "Report a Road Issue" scenario, obtained by executing the \texttt{ContributionLifecycle} predicate defined in the \texttt{main.als} module.
 
 \subsection{Scenario: User Reporting a Road Issue}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{TestScenario_2.png}
+    \includegraphics[width=\textwidth]{ContributionLifecycle_1.png}
     \caption{Dynamic World, Time 2: Contribution Publication}
-    \label{fig:scenario_step2}
+    \label{fig:lifecycle_step2}
 \end{figure}
 
-Figure \ref{fig:scenario_step2} depicts the system state immediately after a Registered User saves a trip and publishes a contribution. The \texttt{Contribution0} object records a \texttt{RequiresMaintenance} score; however, the associated \texttt{StreetSegment0} still retains its initial \texttt{Optimal} status, correctly representing the pending state before data processing occurs.
+Figure \ref{fig:lifecycle_step2} depicts the system state immediately after a Registered User saves a trip and publishes a contribution. The \texttt{Contribution0} object records a \texttt{RequiresMaintenance} score; however, the associated \texttt{StreetSegment0} still retains its initial \texttt{Optimal} status, correctly representing the pending state before data processing occurs.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{TestScenario_3.png}
+    \includegraphics[width=\textwidth]{ContributionLifecycle_2.png}
     \caption{Dynamic World, Time 3: Data Merge and Update}
-    \label{fig:scenario_step3}
+    \label{fig:lifecycle_step3}
 \end{figure}
 
-Figure \ref{fig:scenario_step3} shows the state after the execution of the \texttt{merge} predicate. The system aggregates the feedback, forcing an update on the map topology: \texttt{StreetSegment0} adopts the \texttt{RequiresMaintenance} score and its \texttt{isCyclable} attribute switches to \texttt{False}, confirming that the user's report successfully impacted the global knowledge.
+Figure \ref{fig:lifecycle_step3} shows the state after the execution of the \texttt{merge} predicate. The system aggregates the feedback, forcing an update on the map topology: \texttt{StreetSegment0} adopts the \texttt{RequiresMaintenance} score matching the user's contribution, confirming that the report successfully impacted the global knowledge.
 
 \subsection{Scenario: Automatic Detection Confirmation}
 
-This scenario validates the interaction where a user confirms a sensor detection during an automatic trip, transforming a raw system alert into a verified user contribution. The following instances correspond to the \texttt{TestDetectionConfirmation} predicate.
+This scenario validates the interaction where a user confirms a sensor detection during an automatic trip, transforming a raw system alert into a verified user contribution. The following instances correspond to the \texttt{ConfirmAutoDetection} predicate.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{TestDetectionConfirmed_0.png}
+    \includegraphics[width=\textwidth]{ConfirmAutoDetection_1.png}
     \caption{Dynamic World, Step 0: Unconfirmed Detection}
     \label{fig:detection_step0}
 \end{figure}
 
-Figure \ref{fig:detection_step0} illustrates the initial state of an \texttt{AutomaticTrip}. A \texttt{Detection} object (red triangle) is linked to the trip and a street segment, but its status is currently unconfirmed (\texttt{confirmed: False}). At this stage, the detection exists as raw data, and no formal \texttt{Contribution} is yet associated with the user or the trip.
+Figure \ref{fig:detection_step0} illustrates the initial state of an \texttt{AutomaticTrip}. A \texttt{Detection0} object (red triangle) is linked to the trip and a street segment, but its status is currently unconfirmed (\texttt{confirmed: False}). At this stage, the detection exists as raw data, and the potential \texttt{Contribution1} (green parallelogram) is present in the universe but remains "orphan", with no links to the user or the trip.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{TestDetectionConfirmed_1.png}
+    \includegraphics[width=\textwidth]{ConfirmAutoDetection_2.png}
     \caption{Dynamic World, Step 1: Confirmation and Contribution Generation}
     \label{fig:detection_step1}
 \end{figure}
 
-Figure \ref{fig:detection_step1} depicts the system state after the \texttt{confirmDetection} predicate is executed. The \texttt{Detection} status updates to \texttt{True}, and the system formally generates a new \texttt{Contribution}. This new object is now structurally linked to the \texttt{RegisteredUser} and the \texttt{AutomaticTrip}, inheriting the score and segment location from the original detection.
+Figure \ref{fig:detection_step1} depicts the system state after the \texttt{confirmDetection} predicate is executed. The \texttt{Detection0} status updates to \texttt{True}, and the system formally integrates the contribution. The \texttt{Contribution1} object is now structurally linked to the \texttt{RegisteredUser0} (via the \texttt{author} relation) and the \texttt{AutomaticTrip0} (via the \texttt{tripContributions} relation), inheriting the score and segment location from the original detection.
 
 
 \subsection{Scenario: Path Invalidation and Independence}
 
-This scenario demonstrates the system's topological consistency. It verifies that if a specific street segment becomes non-cyclable, only the paths utilizing that specific segment are invalidated, while intersecting or nearby paths remain active. The following instances correspond to the \texttt{PathBreakScenario} predicate.
+This scenario demonstrates the system's topological consistency. It verifies that if a specific street segment becomes non-cyclable, only the paths utilizing that specific segment are invalidated, while intersecting or nearby paths remain active. The following instances correspond to the \texttt{PathIndependence} predicate.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{PathBreakScenario_0.png}
+    \includegraphics[width=\textwidth]{PathIndependence_1.png}
     \caption{Dynamic World, Step 0: Initial Connectivity}
-    \label{fig:path_break_step0}
+    \label{fig:path_independence_step0}
 \end{figure}
 
-Figure \ref{fig:path_break_step0} shows the initial system state with two distinct paths, \texttt{Path1} and \texttt{Path2} . Both paths are currently valid and included in \texttt{PathGenerate.activePaths} because all their constituent segments are cyclable. Notably, the paths share a common geometry (a shared segment), but \texttt{Path1} relies on a specific critical segment \texttt{s} that \texttt{Path2} does not use.
+Figure \ref{fig:path_independence_step0} shows the initial system state. The \texttt{PathGenerate} object indicates two valid routes: \texttt{Path0} (labeled \texttt{pAffected}) and \texttt{Path2} (labeled \texttt{pSafe}), both linked by the \texttt{activePaths} relation. Crucially, while they share geometry (specifically \texttt{StreetSegment2}, labeled \texttt{sShared}), \texttt{Path0} relies on the critical segment \texttt{StreetSegment3} ($s$), whereas \texttt{Path2} does not.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{PathBreakScenario_1.png}
+    \includegraphics[width=\textwidth]{PathIndependence_2.png}
     \caption{Dynamic World, Step 1: Localized Failure}
-    \label{fig:path_break_step1}
+    \label{fig:path_independence_step1}
 \end{figure}
 
-Figure \ref{fig:path_break_step1} depicts the state after the critical segment \texttt{s} is marked as non-cyclable (\texttt{isCyclable: False}) . The system enforces the validity constraints: \texttt{Path1} is immediately removed from \texttt{activePaths}, while \texttt{Path2} remains active and unaffected. This proves that issues on a specific road segment are handled locally and do not cascade to invalidate unrelated or merely intersecting valid routes.
+Figure \ref{fig:path_independence_step1} depicts the state after \texttt{StreetSegment3} ($s$) is marked as non-cyclable (\texttt{isCyclable: False}). As a result, \texttt{Path0} is immediately removed from the \texttt{activePaths} set (the red dashed link is removed). Conversely, \texttt{Path2}, which relies on the healthy \texttt{StreetSegment2}, remains active. This confirms that topological failures are handled locally without invalidating independent routes.
